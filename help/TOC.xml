@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+
+<toc version="1.0">
+  
+<tocitem text="Party Organizer">
+  <tocitem text="Introduction" target="introduction" />
+	  <tocitem text="Register">
+	  	<tocitem text="Enter as a registered client" target="register" />
+	  </tocitem>
+  <tocitem text="Start the party" target="start" />
+  <tocitem text="Organize items">
+  	<tocitem text="Add items for the party" target="additem" />
+  </tocitem>
+  <tocitem text="See current order" target="seeorder" />
+  <tocitem text="Fill data" target="filldata" />
+  <tocitem text="Confirm party" target="confirm" />
+
+</tocitem>
+    
+</toc>
