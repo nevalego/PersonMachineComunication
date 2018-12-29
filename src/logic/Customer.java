@@ -72,6 +72,11 @@ public class Customer {
 		return "Customer : " + NIF+" " + name +" "+telephone+" "+ surname 
 				+ " @" + username + " *" + password+"*";
 	}
+
+	public void logOut() {
+		setUsername(null);
+		setPassword(null);
+	}
 	
 	
 	

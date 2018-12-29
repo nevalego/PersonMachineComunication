@@ -16,6 +16,7 @@ import javax.swing.border.LineBorder;
 
 import logic.Item;
 import javax.swing.BoxLayout;
+import java.awt.Rectangle;
 
 public class PanelItem extends JPanel {
 
@@ -59,6 +60,7 @@ public class PanelItem extends JPanel {
 	private JPanel getPnItemInfo() {
 		if (pnItemInfo == null) {
 			pnItemInfo = new JPanel();
+			pnItemInfo.setBounds(new Rectangle(6, 0, 0, 0));
 			pnItemInfo.setBackground(new Color(221, 160, 221));
 			pnItemInfo.setLayout(new BorderLayout(0, 0));
 			pnItemInfo.add(getPnCenter(), BorderLayout.CENTER);

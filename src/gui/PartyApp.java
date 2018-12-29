@@ -51,6 +51,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeListener;
 
 import logic.Customer;
 import logic.Item;
@@ -161,8 +162,6 @@ public class PartyApp extends JFrame {
 	private JPanel pnAvailableItems;
 	private JScrollPane spAvailableItems;
 	private JPanel pnRight;
-	private JScrollPane spLeft;
-	private JPanel pnSpLeft;
 	private JButton btnClearAll;
 	private JPanel pnLogging;
 	private JButton btnCancel;
@@ -198,6 +197,25 @@ public class PartyApp extends JFrame {
 	
 	private int cardNumber=0;
 	private JTextArea textAreaBill;
+	private JPanel pnLeft;
+	private JPanel pnItemCard;
+	private JPanel pnItemsCard;
+	private JPanel pnRemoveItemCard;
+	private JButton btnRemove;
+	private JLabel lblUnitsToRemove;
+	private JSpinner spUnitsToRemove;
+	private JPanel pnItemCardData;
+	private JLabel lblImageItemCard;
+	private JPanel pnPriceUnitsItemCard;
+	private JTextArea tADescriptionOfThe;
+	private JLabel lblItemName;
+	private JScrollPane spItemsCard;
+	private JList listItemsCard;
+	private DefaultListModel<Item> modelCardItems = new DefaultListModel<>();
+	private JLabel lblItemsOfThe;
+	private JLabel lblPriceItemCard;
+	private JLabel lblUnitsCard;
+	private JLabel lblPriceItemCardFinal;
 
 	/**
 	 * Launch the application.
@@ -233,9 +251,11 @@ public class PartyApp extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.add(getPnCards());
-		setContentPane(contentPane);
 		contentPane.add(getPnButtons(), BorderLayout.SOUTH);
 		contentPane.add(getPnLogging(), BorderLayout.NORTH);
+		
+		setContentPane(contentPane);
+		
 
 		loadHelp();
 		loadItems(true, true, true, true, true);
@@ -1511,8 +1531,8 @@ public class PartyApp extends JFrame {
 			pnCardItems = new JPanel();
 			pnCardItems.setBackground(Color.WHITE);
 			pnCardItems.setLayout(new BorderLayout(0, 0));
-			pnCardItems.add(getSpLeft(), BorderLayout.CENTER);
-			pnCardItems.add(getPnRight(), BorderLayout.EAST);
+			pnCardItems.add(getPnRight(), BorderLayout.SOUTH);
+			pnCardItems.add(getPnLeft(), BorderLayout.CENTER);
 		}
 		return pnCardItems;
 	}
@@ -1542,28 +1562,10 @@ public class PartyApp extends JFrame {
 			pnRight = new JPanel();
 			pnRight.setBackground(Color.WHITE);
 			pnRight.setLayout(new BorderLayout(0, 0));
-			pnRight.add(getBtnClearAll(), BorderLayout.NORTH);
-			pnRight.add(getPnFinalPriceCard(), BorderLayout.SOUTH);
+			pnRight.add(getPnFinalPriceCard());
+			pnRight.add(getBtnClearAll(), BorderLayout.WEST);
 		}
 		return pnRight;
-	}
-
-	private JScrollPane getSpLeft() {
-		if (spLeft == null) {
-			spLeft = new JScrollPane();
-			spLeft.setViewportView(getPnSpLeft());
-		}
-		return spLeft;
-	}
-
-	private JPanel getPnSpLeft() {
-		if (pnSpLeft == null) {
-			pnSpLeft = new JPanel();
-			pnSpLeft.setToolTipText("List of items in the shopping card");
-			pnSpLeft.setBackground(Color.WHITE);
-			pnSpLeft.setLayout(new GridLayout(0, 1, 0, 0));
-		}
-		return pnSpLeft;
 	}
 
 	private JButton getBtnClearAll() {
@@ -1585,26 +1587,21 @@ public class PartyApp extends JFrame {
 	protected void clearPartyOrder() {
 
 		p.clearOrder();
-
-		pnSpLeft.removeAll();
+		modelCardItems.clear();
+		//TODO Items summary
 		pnItemsOrder.removeAll();
 
-		pnSpLeft.revalidate();
-		pnSpLeft.repaint();
+		pnItemCard.setVisible(false);
+		listItemsCard.revalidate();
+		listItemsCard.repaint();
 		pnItemsOrder.revalidate();
 		pnItemsOrder.repaint();
 
 	}
 
 	protected void removeItem(Item i, int u) {
+		
 		p.deleteItem(i, u);
-
-		PanelItem panelCard = getPanelItemCard(i);
-		pnSpLeft.remove(panelCard);
-
-		PanelItem panelSummary = getPanelItemSummary(i);
-		pnItemsOrder.remove(panelSummary);
-
 		refreshAll();
 	}
 
@@ -1618,15 +1615,6 @@ public class PartyApp extends JFrame {
 		return null;
 	}
 
-	private PanelItem getPanelItemCard(Item i) {
-		for (Component c : pnSpLeft.getComponents()) {
-			PanelItem panel = (PanelItem) c;
-			if (panel.getItem().getCode().equals(i.getCode())) {
-				return panel;
-			}
-		}
-		return null;
-	}
 
 	private JPanel getPnLogging() {
 		if (pnLogging == null) {
@@ -1674,7 +1662,6 @@ public class PartyApp extends JFrame {
 	}
 
 	private void logout() {
-		// TODO 
 		p.getCustomer().logOut();
 		btnRegister.setVisible(true);
 		btnRegister.setEnabled(true);
@@ -1698,25 +1685,23 @@ public class PartyApp extends JFrame {
 
 	private void refreshItems() {
 
-		pnSpLeft.removeAll();
+		modelCardItems.clear();
 		pnItemsOrder.removeAll();
 
-		int units = 0;
 		for (Item selected : p.getSelectedItems()) {
-
-			units = p.getSelectedItemsUnits().get(selected);
-
 			// Panel Card
-			pnSpLeft.add(new PanelItem(selected, units, this));
+			modelCardItems.addElement(selected);
 
-			// Panel Summary
-			pnItemsOrder.add(new PanelItem(selected, units, this));
+			//TODO Panel Summary
+			//pnItemsOrder.add(new PanelItem(selected, units, this));
 		}
 
 		pnItemsOrder.revalidate();
 		pnItemsOrder.repaint();
-		pnSpLeft.revalidate();
-		pnSpLeft.repaint();
+		
+		listItemsCard.revalidate();
+		listItemsCard.repaint();
+		
 	}
 	
 	public void refreshAll() {
@@ -1725,6 +1710,8 @@ public class PartyApp extends JFrame {
 		setAttendance();
 		txtTotalCard.setText(p.getFinalPrice() + " €");
 		txtFinalPrice.setText(String.valueOf(p.getFinalPrice()) + " €");
+		
+		
 		
 	}
 
@@ -1825,7 +1812,8 @@ public class PartyApp extends JFrame {
 
 		txtNameItem.setText(selected.getName());
 		textAreaDescriptionItem.setText(selected.getDescription());
-
+		spUnitsItem.setValue(1);
+		
 		if (selected.isGroup()) {
 			txtPrice.setText(String.valueOf(selected.getGroupPrice()) + " €/group");
 			spUnitsItem.setEnabled(false);
@@ -1995,7 +1983,7 @@ public class PartyApp extends JFrame {
 	 */
 	public void registeredUser() {
 
-		String username = c.getUsername();
+		String username = p.getCustomer().getUsername();
 		lblUserName.setText("@" + username);
 		btnRegister.setEnabled(false);
 		btnRegister.setVisible(false);
@@ -2019,7 +2007,7 @@ public class PartyApp extends JFrame {
 			pnFinalPriceCard.setBackground(Color.WHITE);
 			pnFinalPriceCard.setLayout(new BorderLayout(0, 0));
 			pnFinalPriceCard.add(getLblFinalPriceCard(), BorderLayout.NORTH);
-			pnFinalPriceCard.add(getTxtTotalCard(), BorderLayout.CENTER);
+			pnFinalPriceCard.add(getTxtTotalCard());
 		}
 		return pnFinalPriceCard;
 	}
@@ -2027,6 +2015,8 @@ public class PartyApp extends JFrame {
 	private JLabel getLblFinalPriceCard() {
 		if (lblFinalPriceCard == null) {
 			lblFinalPriceCard = new JLabel("Total:");
+			lblFinalPriceCard.setAlignmentX(0.5f);
+			lblFinalPriceCard.setBackground(Color.WHITE);
 			lblFinalPriceCard.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		}
 		return lblFinalPriceCard;
@@ -2035,6 +2025,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtTotalCard() {
 		if (txtTotalCard == null) {
 			txtTotalCard = new JTextField();
+			txtTotalCard.setEditable(false);
+			txtTotalCard.setBorder(null);
 			txtTotalCard.setFont(new Font("Tahoma", Font.PLAIN, 22));
 			txtTotalCard.setColumns(10);
 		}
@@ -2073,5 +2065,220 @@ public class PartyApp extends JFrame {
 			textAreaBill.setWrapStyleWord(true);
 		}
 		return textAreaBill;
+	}
+	private JPanel getPnLeft() {
+		if (pnLeft == null) {
+			pnLeft = new JPanel();
+			pnLeft.setBorder(null);
+			pnLeft.setBackground(Color.WHITE);
+			pnLeft.setLayout(new GridLayout(1, 0, 0, 0));
+			pnLeft.add(getPnItemsCard());
+			pnLeft.add(getPnItemCard());
+		}
+		return pnLeft;
+	}
+	private JPanel getPnItemCard() {
+		if (pnItemCard == null) {
+			pnItemCard = new JPanel();
+			pnItemCard.setToolTipText("Item selected");
+			pnItemCard.setBorder(null);
+			pnItemCard.setVisible(false);
+			pnItemCard.setBackground(Color.WHITE);
+			pnItemCard.setLayout(new BorderLayout(0, 0));
+			pnItemCard.add(getPnRemoveItemCard(), BorderLayout.SOUTH);
+			pnItemCard.add(getPnItemCardData(), BorderLayout.CENTER);
+			pnItemCard.add(getLblItemName(), BorderLayout.NORTH);
+		}
+		return pnItemCard;
+	}
+	private JPanel getPnItemsCard() {
+		if (pnItemsCard == null) {
+			pnItemsCard = new JPanel();
+			pnItemsCard.setBorder(null);
+			pnItemsCard.setBackground(Color.WHITE);
+			pnItemsCard.setLayout(new BorderLayout(0, 0));
+			pnItemsCard.add(getLblItemsOfThe(), BorderLayout.NORTH);
+			pnItemsCard.add(getSpItemsCard());
+		}
+		return pnItemsCard;
+	}
+	private JPanel getPnRemoveItemCard() {
+		if (pnRemoveItemCard == null) {
+			pnRemoveItemCard = new JPanel();
+			pnRemoveItemCard.setBorder(null);
+			pnRemoveItemCard.setBackground(Color.WHITE);
+			pnRemoveItemCard.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+			pnRemoveItemCard.add(getLblUnitsToRemove());
+			pnRemoveItemCard.add(getSpUnitsToRemove());
+			pnRemoveItemCard.add(getBtnRemove());
+		}
+		return pnRemoveItemCard;
+	}
+	private JButton getBtnRemove() {
+		if (btnRemove == null) {
+			btnRemove = new JButton("Remove units");
+			btnRemove.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					
+					Item sel = (Item)listItemsCard.getSelectedValue();
+					int u = (int)spUnitsToRemove.getValue();
+					removeItem(sel, u);
+					pnItemCard.setVisible(false);
+					
+				}
+			});
+			btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnRemove.setBackground(Color.WHITE);
+			btnRemove.setMnemonic('R');
+		}
+		return btnRemove;
+	}
+	private JLabel getLblUnitsToRemove() {
+		if (lblUnitsToRemove == null) {
+			lblUnitsToRemove = new JLabel("Units:");
+			lblUnitsToRemove.setLabelFor(getSpUnitsToRemove());
+			lblUnitsToRemove.setDisplayedMnemonic('U');
+			lblUnitsToRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		}
+		return lblUnitsToRemove;
+	}
+	private JSpinner getSpUnitsToRemove() {
+		if (spUnitsToRemove == null) {
+			spUnitsToRemove = new JSpinner();
+			spUnitsToRemove.setForeground(Color.BLACK);
+			spUnitsToRemove.setBackground(Color.WHITE);
+			spUnitsToRemove.setModel(new SpinnerNumberModel(new Integer(1), null, null, new Integer(1)));
+			spUnitsToRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		}
+		return spUnitsToRemove;
+	}
+	private JPanel getPnItemCardData() {
+		if (pnItemCardData == null) {
+			pnItemCardData = new JPanel();
+			pnItemCardData.setBorder(null);
+			pnItemCardData.setBackground(Color.WHITE);
+			pnItemCardData.setLayout(new BorderLayout(0, 0));
+			pnItemCardData.add(getLblImageItemCard(), BorderLayout.CENTER);
+			pnItemCardData.add(getPnPriceUnitsItemCard(), BorderLayout.EAST);
+			pnItemCardData.add(getTADescriptionOfThe(), BorderLayout.NORTH);
+		}
+		return pnItemCardData;
+	}
+	private JLabel getLblImageItemCard() {
+		if (lblImageItemCard == null) {
+			lblImageItemCard = new JLabel("");
+			lblImageItemCard.setBackground(Color.WHITE);
+		}
+		return lblImageItemCard;
+	}
+	private JPanel getPnPriceUnitsItemCard() {
+		if (pnPriceUnitsItemCard == null) {
+			pnPriceUnitsItemCard = new JPanel();
+			pnPriceUnitsItemCard.setBackground(Color.WHITE);
+			pnPriceUnitsItemCard.setBorder(null);
+			pnPriceUnitsItemCard.setLayout(new GridLayout(0, 1, 0, 0));
+			pnPriceUnitsItemCard.add(getLblPriceItemCard());
+			pnPriceUnitsItemCard.add(getLblUnitsCard());
+			pnPriceUnitsItemCard.add(getLblPriceItemCardFinal());
+		}
+		return pnPriceUnitsItemCard;
+	}
+	private JTextArea getTADescriptionOfThe() {
+		if (tADescriptionOfThe == null) {
+			tADescriptionOfThe = new JTextArea();
+			tADescriptionOfThe.setEditable(false);
+			tADescriptionOfThe.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		}
+		return tADescriptionOfThe;
+	}
+	private JLabel getLblItemName() {
+		if (lblItemName == null) {
+			lblItemName = new JLabel("");
+			lblItemName.setFont(new Font("Tahoma", Font.PLAIN, 23));
+		}
+		return lblItemName;
+	}
+	private JScrollPane getSpItemsCard() {
+		if (spItemsCard == null) {
+			spItemsCard = new JScrollPane();
+			spItemsCard.setBorder(null);
+			spItemsCard.setBackground(Color.WHITE);
+			spItemsCard.setViewportView(getListItemsCard());
+		}
+		return spItemsCard;
+	}
+	private JList getListItemsCard() {
+		if (listItemsCard == null) {
+			listItemsCard = new JList(modelCardItems);
+			listItemsCard.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			listItemsCard.setBorder(null);
+			listItemsCard.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+
+					showItemInCard();
+
+				}
+			});
+		}
+		return listItemsCard;
+	}
+	protected void showItemInCard() {
+		// TODO Auto-generated method stub
+		
+		Item selected = (Item)listItemsCard.getSelectedValue();
+		int max = p.getSelectedItemsUnits().get(selected);
+		spUnitsToRemove.setModel(new SpinnerNumberModel(1, 1, max, 1));
+		tADescriptionOfThe.setText(selected.getDescription());
+		lblItemName.setText(selected.getName());
+		
+		String per ="";
+		double priceItem  = max*selected.getPrice();
+		if( !selected.isGroup()) {
+			per=" per unit";
+		}else {
+			per=" per 10 attendants";
+		}
+		lblPriceItemCardFinal.setText(String.valueOf(priceItem)+" €" );
+		lblPriceItemCard.setText(String.valueOf(selected.getPrice()+per));
+		lblUnitsCard.setText(String.valueOf(max)+" unit(s)");
+		
+		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
+		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
+		lblImageItemCard.setIcon(new ImageIcon(im));
+		
+		pnItemCard.setVisible(true);
+		
+	}
+
+	private JLabel getLblItemsOfThe() {
+		if (lblItemsOfThe == null) {
+			lblItemsOfThe = new JLabel("Items of the card");
+			lblItemsOfThe.setLabelFor(getListItemsCard());
+			lblItemsOfThe.setBackground(Color.WHITE);
+			lblItemsOfThe.setFont(new Font("Tahoma", Font.PLAIN, 23));
+		}
+		return lblItemsOfThe;
+	}
+	private JLabel getLblPriceItemCard() {
+		if (lblPriceItemCard == null) {
+			lblPriceItemCard = new JLabel("");
+			lblPriceItemCard.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		}
+		return lblPriceItemCard;
+	}
+	private JLabel getLblUnitsCard() {
+		if (lblUnitsCard == null) {
+			lblUnitsCard = new JLabel("");
+			lblUnitsCard.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		}
+		return lblUnitsCard;
+	}
+	private JLabel getLblPriceItemCardFinal() {
+		if (lblPriceItemCardFinal == null) {
+			lblPriceItemCardFinal = new JLabel("");
+			lblPriceItemCardFinal.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		}
+		return lblPriceItemCardFinal;
 	}
 }
