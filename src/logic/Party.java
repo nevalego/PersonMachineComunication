@@ -1,7 +1,9 @@
 package logic;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 public class Party {
@@ -39,6 +41,51 @@ public class Party {
 				return true;
 		}
 		return false;
+	}
+
+	private List<Item> getDrinkItems() {
+		List<Item> drinks = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Drink))
+				drinks.add(i);
+		}
+		return drinks;
+	}
+
+	private List<Item> getFoodItems() {
+		List<Item> food = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Food))
+				food.add(i);
+		}
+		return food;
+	}
+
+	private List<Item> getPlaceItems() {
+		List<Item> places = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Place))
+				places.add(i);
+		}
+		return places;
+	}
+
+	private List<Item> getDecoItems() {
+		List<Item> decos = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Decoration))
+				decos.add(i);
+		}
+		return decos;
+	}
+
+	private List<Item> getOtherItems() {
+		List<Item> other = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Others))
+				other.add(i);
+		}
+		return other;
 	}
 
 	public void deleteItem(Item i, int units) {
@@ -147,16 +194,35 @@ public class Party {
 			cus += " (Registered customer: " + customer.getUsername() + ")";
 		}
 		sb.append(cus + "\n");
-		sb.append("** NIF: " + customer.getNIF());
+		sb.append("** NIF: " + customer.getNIF() + "\n");
 
 		sb.append("** PARTY DATE AND TIME: " + date.getDay() + "/" + date.getMonth() + "/" + (1900 + date.getYear())
-				+ " a las " + date.getHours() + ":" + date.getMinutes());
-		sb.append("** NUMBER OF ATTENDANTS: " + attendance);
+				+ " a las " + date.getHours() + ":" + date.getMinutes() + "\n");
+		sb.append("** NUMBER OF ATTENDANTS: " + attendance + "\n");
 
 		sb.append(
-				"PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT\n-------------------------------------------------------------------------------");
+				"PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT\n-------------------------------------------------------------------------------\n");
 
-		// TODO ... por categorias
+		for (Item deco : getDecoItems()) {
+			sb.append(deco.getName() + " / " + deco.getCode() + " / " + String.valueOf(selectedItemsUnits.get(deco))
+					+ " / " + String.valueOf(deco.getPrice() * selectedItemsUnits.get(deco))+"\n");
+		}
+		for (Item dri : getDrinkItems()) {
+			sb.append(dri.getName() + " / " + dri.getCode() + " / " + String.valueOf(selectedItemsUnits.get(dri))
+					+ " / " + String.valueOf(dri.getPrice() * selectedItemsUnits.get(dri))+"\n");
+		}
+		for (Item food : getFoodItems()) {
+			sb.append(food.getName() + " / " + food.getCode() + " / " + String.valueOf(selectedItemsUnits.get(food))
+					+ " / " + String.valueOf(food.getPrice() * selectedItemsUnits.get(food))+"\n");
+		}
+		for (Item place : getPlaceItems()) {
+			sb.append(place.getName() + " / " + place.getCode() + " / " + String.valueOf(selectedItemsUnits.get(place))
+					+ " / " + String.valueOf(place.getPrice() * selectedItemsUnits.get(place))+"\n");
+		}
+		for (Item other : getOtherItems()) {
+			sb.append(other.getName() + " / " + other.getCode() + " / " + String.valueOf(selectedItemsUnits.get(other))
+					+ " / " + String.valueOf(other.getPrice() * selectedItemsUnits.get(other))+"\n");
+		}
 
 		sb.append("COMMENTS\n-------------------------");
 		sb.append(comments);
@@ -167,7 +233,7 @@ public class Party {
 					+ String.valueOf(finalPrice - getWithDiscount()) + " = " + String.valueOf(getWithDiscount());
 		} else
 			price += String.valueOf(finalPrice);
-		sb.append(price + " €");
+		sb.append(price + " €\n");
 
 		return sb.toString();
 	}

@@ -159,7 +159,7 @@ public class RegisterDialog extends JDialog {
 			Customer existing = partyApp.getOrganizer().getCustomerByUsername(txtUsername.getText());
 
 			if (existing.getPassword().equals(String.valueOf(passwordField.getPassword()))) {
-				partyApp.getParty().setCustomer(existing);
+				partyApp.login(existing.getUsername(), existing.getPassword());
 				closeDialog();
 			} else {
 				JOptionPane.showMessageDialog(btnRegister, "Wrong password for this username", "Wrong password",

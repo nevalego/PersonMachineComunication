@@ -8,10 +8,9 @@ import java.util.List;
 
 public class Writer {
 
-	BufferedWriter bw = null;
-
 	public void export(List<Customer> registrados) {
 
+		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(new File("src/files/clientes.dat")));
 
@@ -34,22 +33,26 @@ public class Writer {
 
 	public void invoice(Party p) {
 
+		BufferedWriter bw = null;
+		String date = String.valueOf(p.getDate().getDay() + p.getDate().getMonth() + p.getDate().getYear()
+				+ p.getDate().getHours() + p.getDate().getMinutes());
+		String fileName = "src/files/"+String.valueOf(p.getCustomer().getTelephone() + date);
+
 		try {
-			bw = new BufferedWriter(new FileWriter(new File("src/files/"+p.getCustomer().getTelephone()+p.getDate()+".txt")));
-			
+			bw = new BufferedWriter(new FileWriter(new File(fileName + ".txt")));
+
 			bw.write(p.getBill());
-			
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			try {
 				bw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 }

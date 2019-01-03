@@ -3,7 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -51,7 +51,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeListener;
 
 import logic.Customer;
 import logic.Item;
@@ -68,7 +67,7 @@ public class PartyApp extends JFrame {
 	private PartyOrganizer organizer = null;;
 	private Party p = null;
 
-	private JMenu mnFile;
+	private JMenu mnParty;
 	private JMenuItem menuItemExit;
 	private JMenu mnHelp;
 	private JMenuItem mntmContents;
@@ -93,8 +92,6 @@ public class PartyApp extends JFrame {
 	private JPanel pnDataTitle;
 	private JTextField txtCurrentShoppingCard;
 	private JPanel pnOrderData;
-	private JPanel pnPartyData;
-	private JPanel pnItemsSelected;
 	private JPanel pnNameData;
 	private JLabel lblName;
 	private JTextField txtNameData;
@@ -104,11 +101,9 @@ public class PartyApp extends JFrame {
 	private JPanel pnNIFData;
 	private JLabel lblNumAttData;
 	private JTextField txtNumAttData;
-	private JPanel pnInfo;
 	private JPanel pnTotalPrice;
 	private JPanel pnComents;
 	private JLabel lblComentHere;
-	private JLabel lblCurrentItemsIn;
 	private JPanel pnDate;
 	private JSpinner spDay;
 	private JLabel lblDay;
@@ -124,7 +119,7 @@ public class PartyApp extends JFrame {
 	private JPanel pnMonth;
 	private JPanel pnYear;
 	private JTextArea tACommentsData;
-	private JMenuItem menuItemHome;
+	private JMenuItem menuItemBegin;
 	private JSeparator sepNew;
 	private JMenuItem menuItemSeeOrder;
 	private JSeparator sepOrder;
@@ -139,8 +134,6 @@ public class PartyApp extends JFrame {
 	private JLabel lblLogoWelcome;
 	private JPanel pnCenter;
 	private JPanel pnLogoWelcome;
-	private JScrollPane spItemsSelected;
-	private JPanel pnItemsOrder;
 	private JPanel pnSummary;
 	private JPanel pnButtons;
 	private JButton btnConfirm;
@@ -156,8 +149,6 @@ public class PartyApp extends JFrame {
 	private JPanel pnCardTitle;
 	private JLabel lblCardOfThe;
 	private JButton btnBack;
-	private JPanel pnClientPartyData;
-	private JPanel pnPartyDateData;
 	private JPanel pnCardItems;
 	private JPanel pnAvailableItems;
 	private JScrollPane spAvailableItems;
@@ -183,19 +174,17 @@ public class PartyApp extends JFrame {
 	private JLabel lblUnits;
 	private JPanel pnUnitsItem;
 	private JSpinner spUnitsItem;
-	private JPanel pnRegister;
 	private JPanel pnUserName;
 	private JLabel lblUserName;
 	private JPanel pnGo;
 	private JPanel pnTitleFilters;
 	private JPanel pnFinalPriceCard;
 	private JLabel lblFinalPriceCard;
-	private JTextField txtTotalCard;
 	private JPanel pnTelephoneData;
 	private JLabel lblTelephoneData;
 	private JTextField txtTelephoneData;
-	
-	private int cardNumber=0;
+
+	private int cardNumber = 0;
 	private JTextArea textAreaBill;
 	private JPanel pnLeft;
 	private JPanel pnItemCard;
@@ -216,6 +205,11 @@ public class PartyApp extends JFrame {
 	private JLabel lblPriceItemCard;
 	private JLabel lblUnitsCard;
 	private JLabel lblPriceItemCardFinal;
+	private JLabel lblTotalCard;
+	private JPanel pnInfo;
+	private JPanel pnDataCenter;
+	private JPanel pnCommentsDate;
+	private JPanel panelPriceData;
 
 	/**
 	 * Launch the application.
@@ -250,12 +244,11 @@ public class PartyApp extends JFrame {
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
-		contentPane.add(getPnCards());
 		contentPane.add(getPnButtons(), BorderLayout.SOUTH);
-		contentPane.add(getPnLogging(), BorderLayout.NORTH);
-		
+
 		setContentPane(contentPane);
-		
+		contentPane.add(getPnLogging(), BorderLayout.NORTH);
+		contentPane.add(getPnCards(), BorderLayout.CENTER);
 
 		loadHelp();
 		loadItems(true, true, true, true, true);
@@ -290,25 +283,24 @@ public class PartyApp extends JFrame {
 		if (menuBar == null) {
 			menuBar = new JMenuBar();
 			menuBar.setFont(new Font("Segoe UI", Font.PLAIN, 17));
-			menuBar.add(getMnFile());
+			menuBar.add(getMnParty());
 			menuBar.add(getMnHelp());
 		}
 		return menuBar;
 	}
 
-	private JMenu getMnFile() {
-		if (mnFile == null) {
-			mnFile = new JMenu("File");
-			mnFile.setMnemonic('F');
-			mnFile.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			mnFile.add(getMenuItemHome());
-			mnFile.add(getSepNew());
-			mnFile.add(getMenuItemSeeOrder());
-			mnFile.add(getSepOrder());
-			mnFile.add(getMenuItemPrint());
-			mnFile.add(getMenuItemExit());
+	private JMenu getMnParty() {
+		if (mnParty == null) {
+			mnParty = new JMenu("Party");
+			mnParty.setMnemonic('P');
+			mnParty.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			mnParty.add(getMenuItemBegin());
+			mnParty.add(getSepNew());
+			mnParty.add(getSepOrder());
+			mnParty.add(getMenuItemPrint());
+			mnParty.add(getMenuItemExit());
 		}
-		return mnFile;
+		return mnParty;
 	}
 
 	private JMenuItem getMenuItemExit() {
@@ -354,7 +346,8 @@ public class PartyApp extends JFrame {
 
 			mntmAbout.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					JOptionPane.showMessageDialog(getContentPane(), "Party Organizer\nVersión 3.12.2018",
+					JOptionPane.showMessageDialog(getContentPane(),
+							"Party Organizer App\nAutor Nerea Valdés Egocheaga\nVersión 3.12.2018",
 							"About Party Organizer", JOptionPane.INFORMATION_MESSAGE);
 				}
 			});
@@ -426,22 +419,22 @@ public class PartyApp extends JFrame {
 	protected void nextCard() {
 		((CardLayout) pnCards.getLayout()).next(pnCards);
 		cardNumber++;
-		if(cardNumber==5) {
+		if (cardNumber == 5) {
 			hideButtons();
-		}else
+		} else
 			showButtons();
 	}
 
 	protected void previousCard() {
 		((CardLayout) pnCards.getLayout()).previous(pnCards);
 		cardNumber--;
-		//TODO No puede ser mayor ni menor que el numero de cards
-		if(cardNumber==0) {
+		// TODO No puede ser mayor ni menor que el numero de cards
+		if (cardNumber == 0) {
 			hideButtons();
-		}else
+		} else
 			showButtons();
 	}
-	
+
 	private void hideButtons() {
 		btnBack.setEnabled(false);
 		btnBack.setVisible(false);
@@ -450,7 +443,7 @@ public class PartyApp extends JFrame {
 		btnCancel.setEnabled(false);
 		btnCancel.setVisible(false);
 	}
-	
+
 	private void showButtons() {
 		btnBack.setEnabled(true);
 		btnBack.setVisible(true);
@@ -602,26 +595,31 @@ public class PartyApp extends JFrame {
 
 	private JButton getBtnSeeOrder() {
 		if (btnSeeOrder == null) {
-			btnSeeOrder = new JButton("");
-			btnSeeOrder.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					toCard();
-					
-				}
-			});
-			btnSeeOrder.setIcon(new ImageIcon(PartyApp.class.getResource("/img/carritopeque\u00F1o.jpg")));
+			btnSeeOrder = new JButton("See Order");
+			btnSeeOrder.setSize(new Dimension(90, 90));
+			btnSeeOrder.setMnemonic('O');
+			ImageIcon img = new ImageIcon("src/img/carritopeque.jpg");
+			Image im = img.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
+			btnSeeOrder.setIcon(new ImageIcon(im));
 			btnSeeOrder.setToolTipText("Click here to see order");
 			btnSeeOrder.setBackground(new Color(255, 255, 255));
 			btnSeeOrder.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnSeeOrder.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					toCard();
+
+				}
+			});
+
 		}
 		return btnSeeOrder;
 	}
 
 	protected void toCard() {
-		
+
 		((CardLayout) pnCards.getLayout()).show(pnCards, "card");
 		cardNumber++;
-		
+
 	}
 
 	protected void setAttendance() {
@@ -657,7 +655,6 @@ public class PartyApp extends JFrame {
 			pnData.setLayout(new BorderLayout(0, 0));
 			pnData.add(getPnDataTitle(), BorderLayout.NORTH);
 			pnData.add(getPnOrderData(), BorderLayout.CENTER);
-			pnData.add(getPnInfo(), BorderLayout.EAST);
 		}
 		return pnData;
 	}
@@ -701,7 +698,6 @@ public class PartyApp extends JFrame {
 		} else {
 			p.setAttendance(att);
 
-
 			textAreaBill.setText(p.getBill());
 
 		}
@@ -726,44 +722,16 @@ public class PartyApp extends JFrame {
 			pnOrderData = new JPanel();
 			pnOrderData.setBackground(Color.WHITE);
 			pnOrderData.setLayout(new BorderLayout(0, 0));
-			pnOrderData.add(getPnItemsSelected(), BorderLayout.CENTER);
-			pnOrderData.add(getPnClientPartyData(), BorderLayout.NORTH);
+			pnOrderData.add(getPnInfo(), BorderLayout.CENTER);
 		}
 		return pnOrderData;
-	}
-
-	private JPanel getPnPartyData() {
-		if (pnPartyData == null) {
-			pnPartyData = new JPanel();
-			pnPartyData.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-			pnPartyData.setBackground(Color.WHITE);
-			pnPartyData.setLayout(new GridLayout(5, 4, 0, 0));
-			pnPartyData.add(getPnNameData());
-			pnPartyData.add(getPnSurnameData());
-			pnPartyData.add(getPnNIFData());
-			pnPartyData.add(getPnAttData());
-			pnPartyData.add(getPnTelephoneData());
-		}
-		return pnPartyData;
-	}
-
-	private JPanel getPnItemsSelected() {
-		if (pnItemsSelected == null) {
-			pnItemsSelected = new JPanel();
-			pnItemsSelected.setBackground(Color.WHITE);
-			pnItemsSelected.setLayout(new BorderLayout(0, 0));
-			pnItemsSelected.add(getLblCurrentItemsIn(), BorderLayout.NORTH);
-			pnItemsSelected.add(getSpItemsSelected(), BorderLayout.CENTER);
-			pnItemsSelected.add(getPnTotalPrice(), BorderLayout.SOUTH);
-		}
-		return pnItemsSelected;
 	}
 
 	private JPanel getPnNameData() {
 		if (pnNameData == null) {
 			pnNameData = new JPanel();
 			pnNameData.setBackground(Color.WHITE);
-			pnNameData.setLayout(new GridLayout(1, 0, 0, 0));
+			pnNameData.setLayout(new GridLayout(0, 1, 0, 0));
 			pnNameData.add(getLblName());
 			pnNameData.add(getTxtName());
 		}
@@ -792,7 +760,7 @@ public class PartyApp extends JFrame {
 		if (pnSurnameData == null) {
 			pnSurnameData = new JPanel();
 			pnSurnameData.setBackground(Color.WHITE);
-			pnSurnameData.setLayout(new GridLayout(1, 0, 0, 0));
+			pnSurnameData.setLayout(new GridLayout(0, 1, 0, 0));
 			pnSurnameData.add(getLblSurname());
 			pnSurnameData.add(getTxtSurname());
 		}
@@ -821,7 +789,7 @@ public class PartyApp extends JFrame {
 		if (pnNIFData == null) {
 			pnNIFData = new JPanel();
 			pnNIFData.setBackground(Color.WHITE);
-			pnNIFData.setLayout(new GridLayout(1, 0, 0, 0));
+			pnNIFData.setLayout(new GridLayout(0, 1, 0, 0));
 			pnNIFData.add(getLblNif());
 			pnNIFData.add(getTxtNIF());
 		}
@@ -847,21 +815,12 @@ public class PartyApp extends JFrame {
 		return txtNumAttData;
 	}
 
-	private JPanel getPnInfo() {
-		if (pnInfo == null) {
-			pnInfo = new JPanel();
-			pnInfo.setBackground(Color.WHITE);
-			pnInfo.setLayout(new GridLayout(0, 1, 0, 0));
-			pnInfo.add(getPnComents());
-		}
-		return pnInfo;
-	}
-
 	private JPanel getPnTotalPrice() {
 		if (pnTotalPrice == null) {
 			pnTotalPrice = new JPanel();
+			pnTotalPrice.setBorder(null);
 			pnTotalPrice.setBackground(Color.WHITE);
-			pnTotalPrice.setLayout(new GridLayout(1, 0, 0, 0));
+			pnTotalPrice.setLayout(new GridLayout(1, 1, 0, 0));
 			pnTotalPrice.add(getLblFinalPrice());
 			pnTotalPrice.add(getTxtFinalPrice());
 		}
@@ -882,20 +841,11 @@ public class PartyApp extends JFrame {
 	private JLabel getLblComentHere() {
 		if (lblComentHere == null) {
 			lblComentHere = new JLabel("Coment here ( Optional ):");
-			lblComentHere.setHorizontalAlignment(SwingConstants.CENTER);
+			lblComentHere.setHorizontalAlignment(SwingConstants.LEFT);
 			lblComentHere.setBackground(SystemColor.inactiveCaptionBorder);
 			lblComentHere.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		}
 		return lblComentHere;
-	}
-
-	private JLabel getLblCurrentItemsIn() {
-		if (lblCurrentItemsIn == null) {
-			lblCurrentItemsIn = new JLabel("Current items in the order:");
-			lblCurrentItemsIn.setBackground(Color.WHITE);
-			lblCurrentItemsIn.setFont(new Font("Tahoma", Font.PLAIN, 23));
-		}
-		return lblCurrentItemsIn;
 	}
 
 	private JPanel getPnDate() {
@@ -917,6 +867,7 @@ public class PartyApp extends JFrame {
 
 			SpinnerModel spDayModel = new SpinnerNumberModel(1, 1, 31, 1);
 			spDay = new JSpinner(spDayModel);
+			spDay.setBorder(null);
 			spDay.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			spDay.setBackground(Color.WHITE);
 		}
@@ -926,6 +877,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblDay() {
 		if (lblDay == null) {
 			lblDay = new JLabel("Day:");
+			lblDay.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblDay.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			lblDay.setBackground(Color.WHITE);
 		}
@@ -935,6 +887,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblMonth() {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Month:");
+			lblMonth.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			lblMonth.setBackground(Color.WHITE);
 		}
@@ -945,6 +898,7 @@ public class PartyApp extends JFrame {
 		if (spMonth == null) {
 			SpinnerModel spMonthModel = new SpinnerNumberModel(1, 1, 12, 1);
 			spMonth = new JSpinner(spMonthModel);
+			spMonth.setBorder(null);
 			spMonth.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			spMonth.setBackground(Color.WHITE);
 		}
@@ -954,6 +908,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblYear() {
 		if (lblYear == null) {
 			lblYear = new JLabel("Year:");
+			lblYear.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			lblYear.setBackground(Color.WHITE);
 		}
@@ -962,8 +917,9 @@ public class PartyApp extends JFrame {
 
 	private JSpinner getSpYear() {
 		if (spYear == null) {
-			SpinnerModel spYearModel = new SpinnerNumberModel(2018, 2018, 2029, 1);
+			SpinnerModel spYearModel = new SpinnerNumberModel(2019, 2019, 2039, 1);
 			spYear = new JSpinner(spYearModel);
+			spYear.setBorder(null);
 			spYear.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			spYear.setBackground(Color.WHITE);
 		}
@@ -973,11 +929,12 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtFinalPrice() {
 		if (txtFinalPrice == null) {
 			txtFinalPrice = new JTextField();
-			txtFinalPrice.setForeground(Color.WHITE);
+			txtFinalPrice.setBorder(null);
 			txtFinalPrice.setHorizontalAlignment(SwingConstants.CENTER);
+			txtFinalPrice.setForeground(Color.BLACK);
 			txtFinalPrice.setFont(new Font("Tahoma", Font.PLAIN, 25));
 			txtFinalPrice.setText("0.0 \u20AC");
-			txtFinalPrice.setBackground(new Color(219, 112, 147));
+			txtFinalPrice.setBackground(Color.WHITE);
 			txtFinalPrice.setEditable(false);
 			txtFinalPrice.setColumns(10);
 		}
@@ -988,7 +945,7 @@ public class PartyApp extends JFrame {
 		if (pnAttData == null) {
 			pnAttData = new JPanel();
 			pnAttData.setBackground(Color.WHITE);
-			pnAttData.setLayout(new GridLayout(1, 0, 0, 0));
+			pnAttData.setLayout(new GridLayout(0, 1, 0, 0));
 			pnAttData.add(getLblNumAttData());
 			pnAttData.add(getTxtNumAttData());
 		}
@@ -1017,8 +974,9 @@ public class PartyApp extends JFrame {
 	private JPanel getPnDay() {
 		if (pnDay == null) {
 			pnDay = new JPanel();
+			pnDay.setBorder(null);
 			pnDay.setBackground(Color.WHITE);
-			pnDay.setLayout(new GridLayout(1, 0, 0, 0));
+			pnDay.setLayout(new GridLayout(0, 1, 0, 0));
 			pnDay.add(getLblDay());
 			pnDay.add(getSpDay());
 		}
@@ -1028,8 +986,9 @@ public class PartyApp extends JFrame {
 	private JPanel getPnMonth() {
 		if (pnMonth == null) {
 			pnMonth = new JPanel();
+			pnMonth.setBorder(null);
 			pnMonth.setBackground(Color.WHITE);
-			pnMonth.setLayout(new GridLayout(1, 0, 0, 0));
+			pnMonth.setLayout(new GridLayout(0, 1, 0, 0));
 			pnMonth.add(getLblMonth());
 			pnMonth.add(getSpMonth());
 		}
@@ -1039,8 +998,9 @@ public class PartyApp extends JFrame {
 	private JPanel getPnYear() {
 		if (pnYear == null) {
 			pnYear = new JPanel();
+			pnYear.setBorder(null);
 			pnYear.setBackground(Color.WHITE);
-			pnYear.setLayout(new GridLayout(1, 0, 0, 0));
+			pnYear.setLayout(new GridLayout(0, 1, 0, 0));
 			pnYear.add(getLblYear());
 			pnYear.add(getSpYear());
 		}
@@ -1059,22 +1019,28 @@ public class PartyApp extends JFrame {
 		return tACommentsData;
 	}
 
-	private JMenuItem getMenuItemHome() {
-		if (menuItemHome == null) {
-			menuItemHome = new JMenuItem("Home");
-			menuItemHome.addActionListener(new ActionListener() {
+	private JMenuItem getMenuItemBegin() {
+		if (menuItemBegin == null) {
+			menuItemBegin = new JMenuItem("Begin");
+			menuItemBegin.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					restartApp();
 				}
 			});
-			menuItemHome.setFont(new Font("Arial", Font.PLAIN, 15));
-			menuItemHome.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_MASK));
+			menuItemBegin.setFont(new Font("Arial", Font.PLAIN, 15));
+			menuItemBegin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.ALT_MASK));
 		}
-		return menuItemHome;
+		return menuItemBegin;
 	}
 
 	protected void restartApp() {
 
+		p.clearOrder();
+		p.getCustomer().logOut();
+
+		lblUserName.setVisible(false);
+		btnRegister.setVisible(true);
+		btnRegister.setEnabled(true);
 		menuItemPrint.setEnabled(false);
 		chckbxDecoration.setSelected(true);
 		chckbxDrink.setSelected(true);
@@ -1085,6 +1051,8 @@ public class PartyApp extends JFrame {
 		txtSurnameData.setText("");
 		txtNumAttData.setText("");
 		txtNIFData.setText("");
+
+		refreshAll();
 		toFirst();
 	}
 
@@ -1093,15 +1061,6 @@ public class PartyApp extends JFrame {
 			sepNew = new JSeparator();
 		}
 		return sepNew;
-	}
-
-	private JMenuItem getMenuItemSeeOrder() {
-		if (menuItemSeeOrder == null) {
-			menuItemSeeOrder = new JMenuItem("See order");
-			menuItemSeeOrder.setFont(new Font("Arial", Font.PLAIN, 15));
-			menuItemSeeOrder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
-		}
-		return menuItemSeeOrder;
 	}
 
 	private JSeparator getSepOrder() {
@@ -1135,8 +1094,9 @@ public class PartyApp extends JFrame {
 	private JPanel getPnHour() {
 		if (pnHour == null) {
 			pnHour = new JPanel();
+			pnHour.setBorder(null);
 			pnHour.setBackground(Color.WHITE);
-			pnHour.setLayout(new GridLayout(1, 0, 0, 0));
+			pnHour.setLayout(new GridLayout(0, 1, 0, 0));
 			pnHour.add(getLblHour());
 			pnHour.add(getSpHour());
 		}
@@ -1146,8 +1106,9 @@ public class PartyApp extends JFrame {
 	private JPanel getPnMinutes() {
 		if (pnMinutes == null) {
 			pnMinutes = new JPanel();
+			pnMinutes.setBorder(null);
 			pnMinutes.setBackground(Color.WHITE);
-			pnMinutes.setLayout(new GridLayout(1, 0, 0, 0));
+			pnMinutes.setLayout(new GridLayout(0, 1, 0, 0));
 			pnMinutes.add(getLblMinutes());
 			pnMinutes.add(getSpMinutes());
 		}
@@ -1157,6 +1118,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblHour() {
 		if (lblHour == null) {
 			lblHour = new JLabel("Hour:");
+			lblHour.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblHour.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblHour;
@@ -1165,6 +1127,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblMinutes() {
 		if (lblMinutes == null) {
 			lblMinutes = new JLabel("Minutes:");
+			lblMinutes.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblMinutes.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblMinutes;
@@ -1172,8 +1135,9 @@ public class PartyApp extends JFrame {
 
 	private JSpinner getSpHour() {
 		if (spHour == null) {
-			SpinnerModel spHourModel = new SpinnerNumberModel(17, 1, 24, 1);
+			SpinnerModel spHourModel = new SpinnerNumberModel(18, 1, 24, 1);
 			spHour = new JSpinner(spHourModel);
+			spHour.setBorder(null);
 			spHour.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return spHour;
@@ -1181,8 +1145,10 @@ public class PartyApp extends JFrame {
 
 	private JSpinner getSpMinutes() {
 		if (spMinutes == null) {
-			SpinnerModel spMinModel = new SpinnerNumberModel(30, 0, 59, 1);
+			SpinnerModel spMinModel = new SpinnerNumberModel(00, 0, 59, 1);
 			spMinutes = new JSpinner(spMinModel);
+			spMinutes.setForeground(Color.WHITE);
+			spMinutes.setBorder(null);
 			spMinutes.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			spMinutes.setBackground(SystemColor.inactiveCaptionBorder);
 		}
@@ -1223,23 +1189,6 @@ public class PartyApp extends JFrame {
 		return pnLogoWelcome;
 	}
 
-	private JScrollPane getSpItemsSelected() {
-		if (spItemsSelected == null) {
-			spItemsSelected = new JScrollPane();
-			spItemsSelected.setViewportView(getPnItemsOrder());
-		}
-		return spItemsSelected;
-	}
-
-	private JPanel getPnItemsOrder() {
-		if (pnItemsOrder == null) {
-			pnItemsOrder = new JPanel();
-			pnItemsOrder.setBackground(Color.WHITE);
-			pnItemsOrder.setLayout(new GridLayout(0, 1, 0, 0));
-		}
-		return pnItemsOrder;
-	}
-
 	private JPanel getPnSummary() {
 		if (pnSummary == null) {
 			pnSummary = new JPanel();
@@ -1275,15 +1224,20 @@ public class PartyApp extends JFrame {
 			btnConfirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					if (lastCard()) {
-						if (check()) {
+					if (check()) {
+						setValues();
+						if (lastCard()) {
 							confirm();
 							askInvoice();
+							restartApp();
+						} else {
+							if (dataCard()) 
+								showBill();
+							nextCard();
 						}
 					} else {
-						
-						//TODO : Aqui comprobar si estoy en el pnData si rellene todos los campos
-						nextCard();
+						JOptionPane.showMessageDialog(null, "You must fill data for the party reservation",
+								"Empty fields", JOptionPane.ERROR_MESSAGE);
 					}
 
 				}
@@ -1292,18 +1246,36 @@ public class PartyApp extends JFrame {
 		return btnConfirm;
 	}
 
-	// TODO mejorar este lastCard ¿?
+	protected void setValues() {
+
+		p.getCustomer().setNIF(txtNIFData.getText());
+		p.getCustomer().setTelephone(txtTelephoneData.getText());
+		p.setComments(tACommentsData.getText());
+	}
+
+	protected void showBill() {
+
+		textAreaBill.setText(p.getBill());
+		textAreaBill.setVisible(true);
+	}
+
+	protected boolean dataCard() {
+		if (cardNumber == 3)
+			return true;
+		return false;
+	}
+
 	protected boolean lastCard() {
 
-		if (!txtNIFData.getText().equals(""))
+		if (cardNumber == 4)
 			return true;
 		return false;
 	}
 
 	protected void confirm() {
-		
+
 		organizer.createParty(p);
-		System.out.println(p.toString());
+		System.out.println(p.toString());// TODO COMENTAR ESTO AL ENTREGAR
 	}
 
 	protected boolean check() {
@@ -1313,22 +1285,18 @@ public class PartyApp extends JFrame {
 	}
 
 	private boolean checkNIFTelephone() {
-		if (txtNIFData.getText().equals("") || txtTelephoneData.getText().equals("") ) {
-			JOptionPane.showMessageDialog(this, "You must write your NIF", "Wrong NIF", JOptionPane.ERROR_MESSAGE);
+		if (txtNIFData.getText().equals(" ") || txtTelephoneData.getText().equals(" ")) {
+			JOptionPane.showMessageDialog(this, "You must write your NIF and telephone", "Wrong data",
+					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		//TODO set nif telehpone alnd all data
 		return true;
 	}
 
 	private boolean checkNameSurname() {
 
-		if (txtNameData.getText().equals("")) {
-			JOptionPane.showMessageDialog(this, "You must write your name", "Wrong name", JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		if (txtSurnameData.getText().equals("")) {
-			JOptionPane.showMessageDialog(this, "You must write your surname", "Wrong surname",
+		if (txtNameData.getText().equals(" ") || txtSurnameData.getText().equals(" ")) {
+			JOptionPane.showMessageDialog(this, "You must write your name and surname", "Wrong data",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -1337,16 +1305,13 @@ public class PartyApp extends JFrame {
 
 	protected void askInvoice() {
 
-		
-		int answer = JOptionPane.showConfirmDialog(btnConfirm, "Do you wish to obtain the invoice file ? ", "Wish Invoice",
-				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+		int answer = JOptionPane.showConfirmDialog(btnConfirm, "Do you wish to obtain the invoice file ? ",
+				"Wish Invoice", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				new ImageIcon("src/img/interrogacion.jpg"));
-		if( answer == JOptionPane.YES_OPTION) {
-			//TODO Null pointer en el writer
+		if (answer == JOptionPane.YES_OPTION) {
 			organizer.createInvoiceFile(p);
 		}
-		
-		restartApp();
+
 	}
 
 	private JPanel getPnBillSummary() {
@@ -1365,7 +1330,7 @@ public class PartyApp extends JFrame {
 			btnRegister.setBackground(new Color(221, 160, 221));
 			btnRegister.setForeground(new Color(0, 0, 0));
 			btnRegister.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			btnRegister.setMnemonic('C');
+			btnRegister.setMnemonic('R');
 			btnRegister.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 
@@ -1455,7 +1420,6 @@ public class PartyApp extends JFrame {
 		if (pnSouthOrder == null) {
 			pnSouthOrder = new JPanel();
 			pnSouthOrder.setLayout(new BorderLayout(0, 0));
-			pnSouthOrder.add(getBtnSeeOrder(), BorderLayout.CENTER);
 		}
 		return pnSouthOrder;
 	}
@@ -1498,32 +1462,13 @@ public class PartyApp extends JFrame {
 			btnBack.setMnemonic('B');
 			btnBack.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+
 					previousCard();
 				}
 			});
 			btnBack.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return btnBack;
-	}
-
-	private JPanel getPnClientPartyData() {
-		if (pnClientPartyData == null) {
-			pnClientPartyData = new JPanel();
-			pnClientPartyData.setLayout(new BorderLayout(0, 0));
-			pnClientPartyData.add(getPnPartyData(), BorderLayout.CENTER);
-			pnClientPartyData.add(getPnPartyDateData(), BorderLayout.EAST);
-		}
-		return pnClientPartyData;
-	}
-
-	private JPanel getPnPartyDateData() {
-		if (pnPartyDateData == null) {
-			pnPartyDateData = new JPanel();
-			pnPartyDateData.setLayout(new GridLayout(0, 1, 0, 0));
-			pnPartyDateData.add(getPnDate());
-		}
-		return pnPartyDateData;
 	}
 
 	private JPanel getPnCardItems() {
@@ -1588,41 +1533,28 @@ public class PartyApp extends JFrame {
 
 		p.clearOrder();
 		modelCardItems.clear();
-		//TODO Items summary
-		pnItemsOrder.removeAll();
 
 		pnItemCard.setVisible(false);
 		listItemsCard.revalidate();
 		listItemsCard.repaint();
-		pnItemsOrder.revalidate();
-		pnItemsOrder.repaint();
 
 	}
 
 	protected void removeItem(Item i, int u) {
-		
+
 		p.deleteItem(i, u);
+
 		refreshAll();
 	}
-
-	private PanelItem getPanelItemSummary(Item i) {
-		for (Component c : pnItemsOrder.getComponents()) {
-			PanelItem panel = (PanelItem) c;
-			if (panel.getItem().getCode().equals(i.getCode())) {
-				return panel;
-			}
-		}
-		return null;
-	}
-
 
 	private JPanel getPnLogging() {
 		if (pnLogging == null) {
 			pnLogging = new JPanel();
 			pnLogging.setBackground(Color.WHITE);
-			pnLogging.setLayout(new GridLayout(0, 2, 0, 0));
-			pnLogging.add(getPnUserName());
-			pnLogging.add(getPnRegister());
+			pnLogging.setLayout(new BorderLayout(0, 0));
+			pnLogging.add(getPnUserName(), BorderLayout.CENTER);
+			pnLogging.add(getBtnSeeOrder(), BorderLayout.EAST);
+			pnLogging.add(getBtnRegister(), BorderLayout.WEST);
 		}
 		return pnLogging;
 	}
@@ -1657,7 +1589,7 @@ public class PartyApp extends JFrame {
 
 	private void toFirst() {
 		((CardLayout) pnCards.getLayout()).first(pnCards);
-		cardNumber=0;
+		cardNumber = 0;
 		hideButtons();
 	}
 
@@ -1668,51 +1600,38 @@ public class PartyApp extends JFrame {
 		lblUserName.setText("");
 	}
 
-	protected boolean login(String usr, String pass) {
+	protected void login(String usr, String pass) {
 
 		Customer cus = organizer.getCustomerByUsername(usr);
-		// Customer is not registered or passwords dont match
-		if (cus == null || !cus.getPassword().equals(pass))
-			return false;
-		else {
-			p.getCustomer().logIn(usr, pass);
-			btnRegister.setVisible(false);
-			lblUserName.setText("@" + 	p.getCustomer().getUsername());
-			return true;
+		p.getCustomer().logIn(usr, pass);
+		btnRegister.setVisible(false);
+		lblUserName.setText("@" + p.getCustomer().getUsername());
 
-		}
 	}
 
 	private void refreshItems() {
 
 		modelCardItems.clear();
-		pnItemsOrder.removeAll();
 
 		for (Item selected : p.getSelectedItems()) {
 			// Panel Card
 			modelCardItems.addElement(selected);
 
-			//TODO Panel Summary
-			//pnItemsOrder.add(new PanelItem(selected, units, this));
 		}
 
-		pnItemsOrder.revalidate();
-		pnItemsOrder.repaint();
-		
 		listItemsCard.revalidate();
 		listItemsCard.repaint();
-		
+
+		pnItemCard.setVisible(false);
 	}
-	
+
 	public void refreshAll() {
 
 		refreshItems();
 		setAttendance();
-		txtTotalCard.setText(p.getFinalPrice() + " €");
+		lblTotalCard.setText(p.getFinalPrice() + " €");
 		txtFinalPrice.setText(String.valueOf(p.getFinalPrice()) + " €");
-		
-		
-		
+
 	}
 
 	private JPanel getPnItem() {
@@ -1813,13 +1732,14 @@ public class PartyApp extends JFrame {
 		txtNameItem.setText(selected.getName());
 		textAreaDescriptionItem.setText(selected.getDescription());
 		spUnitsItem.setValue(1);
-		
+
 		if (selected.isGroup()) {
 			txtPrice.setText(String.valueOf(selected.getGroupPrice()) + " €/group");
 			spUnitsItem.setEnabled(false);
-		} else
+		} else {
 			txtPrice.setText(String.valueOf(selected.getUnitPrice()) + " €/unit");
-
+			spUnitsItem.setEnabled(true);
+		}
 		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
 		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
 		lblImageItem.setIcon(new ImageIcon(im));
@@ -1938,17 +1858,6 @@ public class PartyApp extends JFrame {
 		return spUnitsItem;
 	}
 
-	private JPanel getPnRegister() {
-		if (pnRegister == null) {
-			pnRegister = new JPanel();
-			pnRegister.setBackground(new Color(128, 0, 128));
-			FlowLayout fl_pnRegister = (FlowLayout) pnRegister.getLayout();
-			fl_pnRegister.setAlignment(FlowLayout.RIGHT);
-			pnRegister.add(getBtnRegister());
-		}
-		return pnRegister;
-	}
-
 	private JPanel getPnUserName() {
 		if (pnUserName == null) {
 			pnUserName = new JPanel();
@@ -1989,7 +1898,6 @@ public class PartyApp extends JFrame {
 		btnRegister.setVisible(false);
 	}
 
-
 	private JPanel getPnTitleFilters() {
 		if (pnTitleFilters == null) {
 			pnTitleFilters = new JPanel();
@@ -2007,7 +1915,7 @@ public class PartyApp extends JFrame {
 			pnFinalPriceCard.setBackground(Color.WHITE);
 			pnFinalPriceCard.setLayout(new BorderLayout(0, 0));
 			pnFinalPriceCard.add(getLblFinalPriceCard(), BorderLayout.NORTH);
-			pnFinalPriceCard.add(getTxtTotalCard());
+			pnFinalPriceCard.add(getLblTotalCard(), BorderLayout.SOUTH);
 		}
 		return pnFinalPriceCard;
 	}
@@ -2022,26 +1930,17 @@ public class PartyApp extends JFrame {
 		return lblFinalPriceCard;
 	}
 
-	private JTextField getTxtTotalCard() {
-		if (txtTotalCard == null) {
-			txtTotalCard = new JTextField();
-			txtTotalCard.setEditable(false);
-			txtTotalCard.setBorder(null);
-			txtTotalCard.setFont(new Font("Tahoma", Font.PLAIN, 22));
-			txtTotalCard.setColumns(10);
-		}
-		return txtTotalCard;
-	}
 	private JPanel getPnTelephoneData() {
 		if (pnTelephoneData == null) {
 			pnTelephoneData = new JPanel();
 			pnTelephoneData.setBackground(Color.WHITE);
-			pnTelephoneData.setLayout(new GridLayout(1, 0, 0, 0));
+			pnTelephoneData.setLayout(new GridLayout(0, 1, 0, 0));
 			pnTelephoneData.add(getLblTelephoneData());
 			pnTelephoneData.add(getTxtTelephoneData());
 		}
 		return pnTelephoneData;
 	}
+
 	private JLabel getLblTelephoneData() {
 		if (lblTelephoneData == null) {
 			lblTelephoneData = new JLabel("Telephone:");
@@ -2049,6 +1948,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblTelephoneData;
 	}
+
 	private JTextField getTxtTelephoneData() {
 		if (txtTelephoneData == null) {
 			txtTelephoneData = new JTextField();
@@ -2057,15 +1957,18 @@ public class PartyApp extends JFrame {
 		}
 		return txtTelephoneData;
 	}
+
 	private JTextArea getTextAreaBill() {
 		if (textAreaBill == null) {
 			textAreaBill = new JTextArea();
+			textAreaBill.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			textAreaBill.setEditable(false);
 			textAreaBill.setLineWrap(true);
 			textAreaBill.setWrapStyleWord(true);
 		}
 		return textAreaBill;
 	}
+
 	private JPanel getPnLeft() {
 		if (pnLeft == null) {
 			pnLeft = new JPanel();
@@ -2077,6 +1980,7 @@ public class PartyApp extends JFrame {
 		}
 		return pnLeft;
 	}
+
 	private JPanel getPnItemCard() {
 		if (pnItemCard == null) {
 			pnItemCard = new JPanel();
@@ -2091,6 +1995,7 @@ public class PartyApp extends JFrame {
 		}
 		return pnItemCard;
 	}
+
 	private JPanel getPnItemsCard() {
 		if (pnItemsCard == null) {
 			pnItemsCard = new JPanel();
@@ -2102,6 +2007,7 @@ public class PartyApp extends JFrame {
 		}
 		return pnItemsCard;
 	}
+
 	private JPanel getPnRemoveItemCard() {
 		if (pnRemoveItemCard == null) {
 			pnRemoveItemCard = new JPanel();
@@ -2114,17 +2020,17 @@ public class PartyApp extends JFrame {
 		}
 		return pnRemoveItemCard;
 	}
+
 	private JButton getBtnRemove() {
 		if (btnRemove == null) {
 			btnRemove = new JButton("Remove units");
 			btnRemove.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					
-					Item sel = (Item)listItemsCard.getSelectedValue();
-					int u = (int)spUnitsToRemove.getValue();
+
+					Item sel = (Item) listItemsCard.getSelectedValue();
+					int u = (int) spUnitsToRemove.getValue();
 					removeItem(sel, u);
-					pnItemCard.setVisible(false);
-					
+
 				}
 			});
 			btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -2133,6 +2039,7 @@ public class PartyApp extends JFrame {
 		}
 		return btnRemove;
 	}
+
 	private JLabel getLblUnitsToRemove() {
 		if (lblUnitsToRemove == null) {
 			lblUnitsToRemove = new JLabel("Units:");
@@ -2142,6 +2049,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblUnitsToRemove;
 	}
+
 	private JSpinner getSpUnitsToRemove() {
 		if (spUnitsToRemove == null) {
 			spUnitsToRemove = new JSpinner();
@@ -2152,6 +2060,7 @@ public class PartyApp extends JFrame {
 		}
 		return spUnitsToRemove;
 	}
+
 	private JPanel getPnItemCardData() {
 		if (pnItemCardData == null) {
 			pnItemCardData = new JPanel();
@@ -2164,6 +2073,7 @@ public class PartyApp extends JFrame {
 		}
 		return pnItemCardData;
 	}
+
 	private JLabel getLblImageItemCard() {
 		if (lblImageItemCard == null) {
 			lblImageItemCard = new JLabel("");
@@ -2171,6 +2081,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblImageItemCard;
 	}
+
 	private JPanel getPnPriceUnitsItemCard() {
 		if (pnPriceUnitsItemCard == null) {
 			pnPriceUnitsItemCard = new JPanel();
@@ -2183,6 +2094,7 @@ public class PartyApp extends JFrame {
 		}
 		return pnPriceUnitsItemCard;
 	}
+
 	private JTextArea getTADescriptionOfThe() {
 		if (tADescriptionOfThe == null) {
 			tADescriptionOfThe = new JTextArea();
@@ -2191,6 +2103,7 @@ public class PartyApp extends JFrame {
 		}
 		return tADescriptionOfThe;
 	}
+
 	private JLabel getLblItemName() {
 		if (lblItemName == null) {
 			lblItemName = new JLabel("");
@@ -2198,6 +2111,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblItemName;
 	}
+
 	private JScrollPane getSpItemsCard() {
 		if (spItemsCard == null) {
 			spItemsCard = new JScrollPane();
@@ -2207,6 +2121,7 @@ public class PartyApp extends JFrame {
 		}
 		return spItemsCard;
 	}
+
 	private JList getListItemsCard() {
 		if (listItemsCard == null) {
 			listItemsCard = new JList(modelCardItems);
@@ -2223,32 +2138,32 @@ public class PartyApp extends JFrame {
 		}
 		return listItemsCard;
 	}
+
 	protected void showItemInCard() {
-		// TODO Auto-generated method stub
-		
-		Item selected = (Item)listItemsCard.getSelectedValue();
+
+		pnItemCard.setVisible(true);
+
+		Item selected = (Item) listItemsCard.getSelectedValue();
 		int max = p.getSelectedItemsUnits().get(selected);
 		spUnitsToRemove.setModel(new SpinnerNumberModel(1, 1, max, 1));
 		tADescriptionOfThe.setText(selected.getDescription());
 		lblItemName.setText(selected.getName());
-		
-		String per ="";
-		double priceItem  = max*selected.getPrice();
-		if( !selected.isGroup()) {
-			per=" per unit";
-		}else {
-			per=" per 10 attendants";
+
+		String per = "";
+		double priceItem = max * selected.getPrice();
+		if (!selected.isGroup()) {
+			per = " €/unit";
+		} else {
+			per = " €/ 10 attendants";
 		}
-		lblPriceItemCardFinal.setText(String.valueOf(priceItem)+" €" );
-		lblPriceItemCard.setText(String.valueOf(selected.getPrice()+per));
-		lblUnitsCard.setText(String.valueOf(max)+" unit(s)");
-		
+		lblPriceItemCardFinal.setText(String.valueOf(priceItem) + " €");
+		lblPriceItemCard.setText(String.valueOf(selected.getPrice() + per));
+		lblUnitsCard.setText(String.valueOf(max) + " unit(s)");
+
 		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
 		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
 		lblImageItemCard.setIcon(new ImageIcon(im));
-		
-		pnItemCard.setVisible(true);
-		
+
 	}
 
 	private JLabel getLblItemsOfThe() {
@@ -2260,6 +2175,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblItemsOfThe;
 	}
+
 	private JLabel getLblPriceItemCard() {
 		if (lblPriceItemCard == null) {
 			lblPriceItemCard = new JLabel("");
@@ -2267,6 +2183,7 @@ public class PartyApp extends JFrame {
 		}
 		return lblPriceItemCard;
 	}
+
 	private JLabel getLblUnitsCard() {
 		if (lblUnitsCard == null) {
 			lblUnitsCard = new JLabel("");
@@ -2274,11 +2191,64 @@ public class PartyApp extends JFrame {
 		}
 		return lblUnitsCard;
 	}
+
 	private JLabel getLblPriceItemCardFinal() {
 		if (lblPriceItemCardFinal == null) {
 			lblPriceItemCardFinal = new JLabel("");
 			lblPriceItemCardFinal.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblPriceItemCardFinal;
+	}
+
+	private JLabel getLblTotalCard() {
+		if (lblTotalCard == null) {
+			lblTotalCard = new JLabel("");
+			lblTotalCard.setFont(new Font("Tahoma", Font.PLAIN, 22));
+		}
+		return lblTotalCard;
+	}
+
+	private JPanel getPnInfo() {
+		if (pnInfo == null) {
+			pnInfo = new JPanel();
+			pnInfo.setLayout(new GridLayout(0, 3, 0, 0));
+			pnInfo.add(getPnDataCenter());
+			pnInfo.add(getPnCommentsDate());
+			pnInfo.add(getPanelPriceData());
+		}
+		return pnInfo;
+	}
+
+	private JPanel getPnDataCenter() {
+		if (pnDataCenter == null) {
+			pnDataCenter = new JPanel();
+			pnDataCenter.setLayout(new GridLayout(0, 1, 0, 0));
+			pnDataCenter.add(getPnAttData());
+			pnDataCenter.add(getPnNameData());
+			pnDataCenter.add(getPnSurnameData());
+			pnDataCenter.add(getPnNIFData());
+			pnDataCenter.add(getPnTelephoneData());
+		}
+		return pnDataCenter;
+	}
+
+	private JPanel getPnCommentsDate() {
+		if (pnCommentsDate == null) {
+			pnCommentsDate = new JPanel();
+			pnCommentsDate.setLayout(new GridLayout(2, 2, 0, 0));
+			pnCommentsDate.add(getPnDate());
+			pnCommentsDate.add(getPnComents());
+		}
+		return pnCommentsDate;
+	}
+
+	private JPanel getPanelPriceData() {
+		if (panelPriceData == null) {
+			panelPriceData = new JPanel();
+			panelPriceData.setBackground(Color.WHITE);
+			panelPriceData.setLayout(new BorderLayout(0, 0));
+			panelPriceData.add(getPnTotalPrice(), BorderLayout.SOUTH);
+		}
+		return panelPriceData;
 	}
 }
