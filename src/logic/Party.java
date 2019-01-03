@@ -16,24 +16,62 @@ public class Party {
 	private double finalPrice = 0.0;
 	private String comments = "";
 
-	public Party() {
-	}
-
+	/**
+	 * Add an item to the party reservation
+	 * @param Item i
+	 * @param int units
+	 */
 	public void addItem(Item i, int units) {
 
+		//Checking if the item has been already chosen for the party reservation
 		if (itemIsInParty(i)) {
 			int unitsInOrder = selectedItemsUnits.get(i);
+			// Adding the new number of units to the ones already chosen
 			selectedItemsUnits.put(i, units + unitsInOrder);
 
 		} else {
+			// Adding the new product
 			selectedItemsUnits.put(i, units);
 		}
+		// Recalculate total
 		calculateFinalPrice();
-		System.out.println(toString());
+		
 		System.out.println(getBill());
 
 	}
 
+	/**
+	 * Delete an specified number of units of an item from the party reservation
+	 * @param Item i
+	 * @param int units
+	 */
+	public void deleteItem(Item i, int units) {
+		// Number of units of this item that are reserved
+		int total = selectedItemsUnits.get(i);
+		// Resting reserved and removed
+		int result = total - units;
+		// Remove all reserved (or more)
+		if (result <= 0) {
+			// Remove item
+			selectedItemsUnits.remove(i, total);
+		} else {
+			// Update the number of units left for that item
+			selectedItemsUnits.put(i, total - units);
+		}
+		// Recalculate total
+		calculateFinalPrice();
+		
+		System.out.println(getBill());
+	}
+
+	private void calculateFinalPrice() {
+		finalPrice = 0.0;
+		double numGroups = attendance / 10;
+		for (Item i : selectedItemsUnits.keySet()) {
+			finalPrice += i.getUnitPrice() * selectedItemsUnits.get(i) + i.getGroupPrice() * numGroups;
+		}
+	}
+	
 	private boolean itemIsInParty(Item i) {
 
 		for (Item item : selectedItemsUnits.keySet()) {
@@ -88,27 +126,6 @@ public class Party {
 		return other;
 	}
 
-	public void deleteItem(Item i, int units) {
-		int total = selectedItemsUnits.get(i);
-		int result = total - units;
-		if (result <= 0) {
-			selectedItemsUnits.remove(i, total);
-		} else {
-			selectedItemsUnits.put(i, total - units);
-		}
-		calculateFinalPrice();
-		System.out.println(toString());
-		System.out.println(getBill());
-	}
-
-	private void calculateFinalPrice() {
-		finalPrice = 0.0;
-		double numGroups = attendance / 10;
-		for (Item i : selectedItemsUnits.keySet()) {
-			finalPrice += i.getUnitPrice() * selectedItemsUnits.get(i) + i.getGroupPrice() * numGroups;
-		}
-	}
-
 	public void setAttendance(int people) {
 		attendance = people;
 		calculateFinalPrice();
@@ -147,44 +164,30 @@ public class Party {
 		return selectedItemsUnits;
 	}
 
-	public void setCustomer(Customer c) {
-		this.customer = c;
-	}
-
 	public Customer getCustomer() {
 		return customer;
 	}
 
+	/**
+	 * Provides the final price of the reservation applying the registered user's 15% discount
+	 * @return double discounted total
+	 */
 	public double getWithDiscount() {
-		return finalPrice * 0.15;
+		return finalPrice * 0.85;
 	}
 
+	/**
+	 * Removes all items for the party
+	 */
 	public void clearOrder() {
 		selectedItemsUnits.clear();
 	}
 
-	public boolean confirm() {
-
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Party items : \n" + itemsSelected() + "\n Customer " + customer + "\n Date " + date + "\n Attendants: "
-				+ attendance + "\nFinalPrice " + finalPrice + " €";
-	}
-
-	private String itemsSelected() {
-		String res = "";
-
-		for (Item i : selectedItemsUnits.keySet()) {
-			res += "(" + selectedItemsUnits.get(i) + ") " + i.getName() + " " + i.getUnitPrice() + " €/unit "
-					+ i.getGroupPrice() + " €/group\n ";
-
-		}
-		return res;
-	}
-
+	
+	/**
+	 *	Provides the party bill in text format  
+	 * @return String bill
+	 */
 	public String getBill() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("PARTY BILL\n------------------\n");
@@ -203,29 +206,14 @@ public class Party {
 		sb.append(
 				"PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT\n-------------------------------------------------------------------------------\n");
 
-		for (Item deco : getDecoItems()) {
-			sb.append(deco.getName() + " / " + deco.getCode() + " / " + String.valueOf(selectedItemsUnits.get(deco))
-					+ " / " + String.valueOf(deco.getPrice() * selectedItemsUnits.get(deco))+"\n");
-		}
-		for (Item dri : getDrinkItems()) {
-			sb.append(dri.getName() + " / " + dri.getCode() + " / " + String.valueOf(selectedItemsUnits.get(dri))
-					+ " / " + String.valueOf(dri.getPrice() * selectedItemsUnits.get(dri))+"\n");
-		}
-		for (Item food : getFoodItems()) {
-			sb.append(food.getName() + " / " + food.getCode() + " / " + String.valueOf(selectedItemsUnits.get(food))
-					+ " / " + String.valueOf(food.getPrice() * selectedItemsUnits.get(food))+"\n");
-		}
-		for (Item place : getPlaceItems()) {
-			sb.append(place.getName() + " / " + place.getCode() + " / " + String.valueOf(selectedItemsUnits.get(place))
-					+ " / " + String.valueOf(place.getPrice() * selectedItemsUnits.get(place))+"\n");
-		}
-		for (Item other : getOtherItems()) {
-			sb.append(other.getName() + " / " + other.getCode() + " / " + String.valueOf(selectedItemsUnits.get(other))
-					+ " / " + String.valueOf(other.getPrice() * selectedItemsUnits.get(other))+"\n");
-		}
-
-		sb.append("COMMENTS\n-------------------------");
-		sb.append(comments);
+		sb.append(itemsBill(getDecoItems()));
+		sb.append(itemsBill(getDrinkItems()));
+		sb.append(itemsBill(getFoodItems()));
+		sb.append(itemsBill(getPlaceItems()));
+		sb.append(itemsBill(getOtherItems()));
+		
+		sb.append("\nCOMMENTS\n-------------------------\n");
+		sb.append(comments+"\n");
 
 		String price = "TOTAL BILL ";
 		if (customer.isLogged()) {
@@ -236,6 +224,20 @@ public class Party {
 		sb.append(price + " €\n");
 
 		return sb.toString();
+	}
+
+	/**
+	 * Provides a text for the bill with all items in the list 
+	 * @param list of items
+	 * @return String text 
+	 */
+	private String itemsBill(List<Item> list) {
+		String items="";
+		for(Item i :list ) {
+			int units= getSelectedItemsUnits().get(i);
+			items+=i.getName()+" / "+i.getCode()+" / "+String.valueOf(units)+" / "+String.valueOf(units*i.getPrice());
+		}
+		return items;
 	}
 
 }

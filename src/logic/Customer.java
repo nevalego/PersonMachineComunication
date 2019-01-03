@@ -10,6 +10,12 @@ public class Customer {
 	private String password;
 	
 	public Customer() {
+		NIF="";
+		name="";
+		surname="";
+		telephone="";
+		username="";
+		password="";
 	}
 	
 	public String getTelephone() {
@@ -63,7 +69,7 @@ public class Customer {
 	}
 	
 	public boolean isLogged() {
-		return username!=null;
+		return !username.equals("");
 	}
 
 
@@ -74,8 +80,8 @@ public class Customer {
 	}
 
 	public void logOut() {
-		setUsername(null);
-		setPassword(null);
+		setUsername("");
+		setPassword("");
 	}
 	
 	

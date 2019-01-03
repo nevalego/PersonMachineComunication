@@ -168,10 +168,8 @@ public class RegisterDialog extends JDialog {
 		} else {
 
 			// New user customer registring
-			partyApp.getCustomer().logIn(txtUsername.getText(), String.valueOf(passwordField.getPassword()));
-			Customer c = partyApp.getCustomer();
-			partyApp.getOrganizer().registerClient(c);
-			partyApp.getParty().setCustomer(c);
+			partyApp.getParty().getCustomer().logIn(txtUsername.getText(),String.valueOf(passwordField.getPassword()));
+			partyApp.getOrganizer().registerClient(partyApp.getParty().getCustomer());
 			closeDialog();
 
 		}

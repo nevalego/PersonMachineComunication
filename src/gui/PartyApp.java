@@ -1273,9 +1273,7 @@ public class PartyApp extends JFrame {
 	}
 
 	protected void confirm() {
-
 		organizer.createParty(p);
-		System.out.println(p.toString());// TODO COMENTAR ESTO AL ENTREGAR
 	}
 
 	protected boolean check() {
