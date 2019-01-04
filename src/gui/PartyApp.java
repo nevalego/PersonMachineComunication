@@ -121,7 +121,6 @@ public class PartyApp extends JFrame {
 	private JTextArea tACommentsData;
 	private JMenuItem menuItemBegin;
 	private JSeparator sepNew;
-	private JMenuItem menuItemSeeOrder;
 	private JSeparator sepOrder;
 	private JMenuItem menuItemPrint;
 	private JLabel lblFinalPrice;
@@ -162,7 +161,7 @@ public class PartyApp extends JFrame {
 	private JPanel pnImagePrice;
 	private JTextField txtPrice;
 	private JPanel pnAttendanceNorth;
-	private JList listAllItems;
+	private JList<Item> listAllItems;
 	private DefaultListModel<Item> modelAllItems = new DefaultListModel<>();
 	private JPanel pnButtonsItem;
 	private JButton btnAddItem;
@@ -199,7 +198,7 @@ public class PartyApp extends JFrame {
 	private JTextArea tADescriptionOfThe;
 	private JLabel lblItemName;
 	private JScrollPane spItemsCard;
-	private JList listItemsCard;
+	private JList<Item> listItemsCard;
 	private DefaultListModel<Item> modelCardItems = new DefaultListModel<>();
 	private JLabel lblItemsOfThe;
 	private JLabel lblPriceItemCard;
@@ -210,6 +209,7 @@ public class PartyApp extends JFrame {
 	private JPanel pnDataCenter;
 	private JPanel pnCommentsDate;
 	private JPanel panelPriceData;
+	private JPanel pnUppButtons;
 
 	/**
 	 * Launch the application.
@@ -245,10 +245,9 @@ public class PartyApp extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		contentPane.add(getPnButtons(), BorderLayout.SOUTH);
-
-		setContentPane(contentPane);
 		contentPane.add(getPnLogging(), BorderLayout.NORTH);
 		contentPane.add(getPnCards(), BorderLayout.CENTER);
+		setContentPane(contentPane);
 
 		loadHelp();
 		loadItems(true, true, true, true, true);
@@ -423,16 +422,20 @@ public class PartyApp extends JFrame {
 			hideButtons();
 		} else
 			showButtons();
+		if (cardNumber != 2)
+			btnSeeOrder.setEnabled(true);
 	}
 
 	protected void previousCard() {
 		((CardLayout) pnCards.getLayout()).previous(pnCards);
 		cardNumber--;
-		// TODO No puede ser mayor ni menor que el numero de cards
 		if (cardNumber == 0) {
 			hideButtons();
+			toFirst();
 		} else
 			showButtons();
+		if (cardNumber != 2)
+			btnSeeOrder.setEnabled(true);
 	}
 
 	private void hideButtons() {
@@ -598,10 +601,7 @@ public class PartyApp extends JFrame {
 			btnSeeOrder = new JButton("See Order");
 			btnSeeOrder.setSize(new Dimension(90, 90));
 			btnSeeOrder.setMnemonic('O');
-			ImageIcon img = new ImageIcon("src/img/carritopeque.jpg");
-			Image im = img.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
-			btnSeeOrder.setIcon(new ImageIcon(im));
-			btnSeeOrder.setToolTipText("Click here to see order");
+			btnSeeOrder.setToolTipText("Click here to see order cart");
 			btnSeeOrder.setBackground(new Color(255, 255, 255));
 			btnSeeOrder.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			btnSeeOrder.addActionListener(new ActionListener() {
@@ -616,10 +616,10 @@ public class PartyApp extends JFrame {
 	}
 
 	protected void toCard() {
-
+		showButtons();
 		((CardLayout) pnCards.getLayout()).show(pnCards, "card");
 		cardNumber++;
-
+		btnSeeOrder.setEnabled(false);
 	}
 
 	protected void setAttendance() {
@@ -712,6 +712,7 @@ public class PartyApp extends JFrame {
 		int h = (int) spHour.getValue();
 		int time = (int) spMinutes.getValue();
 
+		@SuppressWarnings("deprecation")
 		Date date = new Date(year, month, day, h, time);
 
 		return date;
@@ -1217,27 +1218,31 @@ public class PartyApp extends JFrame {
 		if (btnConfirm == null) {
 			btnConfirm = new JButton("Confirm");
 			btnConfirm.setToolTipText("Click here to continue the order");
-			btnConfirm.setMnemonic('F');
+			btnConfirm.setMnemonic('N');
 			btnConfirm.setForeground(Color.WHITE);
 			btnConfirm.setBackground(new Color(219, 112, 147));
 			btnConfirm.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			btnConfirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					if (check()) {
-						setValues();
-						if (lastCard()) {
+					if (lastCard()) {
+						if (check()) {
+							
 							confirm();
 							askInvoice();
 							restartApp();
 						} else {
-							if (dataCard()) 
-								showBill();
-							nextCard();
+							JOptionPane.showMessageDialog(null, "You must fill data for the party reservation",
+									"Empty fields", JOptionPane.ERROR_MESSAGE);
 						}
 					} else {
-						JOptionPane.showMessageDialog(null, "You must fill data for the party reservation",
-								"Empty fields", JOptionPane.ERROR_MESSAGE);
+						if (dataCard()) {
+							setValues();// TODO el nombre ,apellido y NIF no se guardan ,tampoco la fecha
+							showBill();
+						}
+							
+						nextCard();
+
 					}
 
 				}
@@ -1248,6 +1253,12 @@ public class PartyApp extends JFrame {
 
 	protected void setValues() {
 
+		p.getCustomer().setName(txtNameData.getText());
+		p.getCustomer().setSurname(txtSurnameData.getText());
+		Date date = new Date();
+		//TODO date.setMonth(spMonth.getValue());
+		
+		p.setDate(date);
 		p.getCustomer().setNIF(txtNIFData.getText());
 		p.getCustomer().setTelephone(txtTelephoneData.getText());
 		p.setComments(tACommentsData.getText());
@@ -1283,7 +1294,7 @@ public class PartyApp extends JFrame {
 	}
 
 	private boolean checkNIFTelephone() {
-		if (txtNIFData.getText().equals(" ") || txtTelephoneData.getText().equals(" ")) {
+		if (txtNIFData.getText().equals("") || txtTelephoneData.getText().equals("")) {
 			JOptionPane.showMessageDialog(this, "You must write your NIF and telephone", "Wrong data",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -1293,7 +1304,7 @@ public class PartyApp extends JFrame {
 
 	private boolean checkNameSurname() {
 
-		if (txtNameData.getText().equals(" ") || txtSurnameData.getText().equals(" ")) {
+		if (txtNameData.getText().equals("") || txtSurnameData.getText().equals("")) {
 			JOptionPane.showMessageDialog(this, "You must write your name and surname", "Wrong data",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -1395,7 +1406,7 @@ public class PartyApp extends JFrame {
 		if (lblNumberOfAttendants == null) {
 			lblNumberOfAttendants = new JLabel("Number of Attendants:");
 			lblNumberOfAttendants.setToolTipText("Specify number of attendants on the right");
-			lblNumberOfAttendants.setDisplayedMnemonic('N');
+			lblNumberOfAttendants.setDisplayedMnemonic('T');
 			lblNumberOfAttendants.setLabelFor(getTxtNAttendants());
 			lblNumberOfAttendants.setForeground(Color.BLACK);
 			lblNumberOfAttendants.setBackground(Color.WHITE);
@@ -1437,7 +1448,7 @@ public class PartyApp extends JFrame {
 		if (pnCardTitle == null) {
 			pnCardTitle = new JPanel();
 			pnCardTitle.setForeground(Color.WHITE);
-			pnCardTitle.setBackground(new Color(219, 112, 147));
+			pnCardTitle.setBackground(Color.WHITE);
 			pnCardTitle.setLayout(new GridLayout(1, 0, 0, 0));
 			pnCardTitle.add(getLblCardOfThe());
 		}
@@ -1446,7 +1457,7 @@ public class PartyApp extends JFrame {
 
 	private JLabel getLblCardOfThe() {
 		if (lblCardOfThe == null) {
-			lblCardOfThe = new JLabel("Card of the Party Reservation");
+			lblCardOfThe = new JLabel("Current Party Reservation");
 			lblCardOfThe.setFont(new Font("Tahoma", Font.PLAIN, 26));
 		}
 		return lblCardOfThe;
@@ -1540,6 +1551,7 @@ public class PartyApp extends JFrame {
 
 	protected void removeItem(Item i, int u) {
 
+		// TODO Falla al eliminar de uno en uno las unidades de los items
 		p.deleteItem(i, u);
 
 		refreshAll();
@@ -1551,8 +1563,7 @@ public class PartyApp extends JFrame {
 			pnLogging.setBackground(Color.WHITE);
 			pnLogging.setLayout(new BorderLayout(0, 0));
 			pnLogging.add(getPnUserName(), BorderLayout.CENTER);
-			pnLogging.add(getBtnSeeOrder(), BorderLayout.EAST);
-			pnLogging.add(getBtnRegister(), BorderLayout.WEST);
+			pnLogging.add(getPnUppButtons(), BorderLayout.EAST);
 		}
 		return pnLogging;
 	}
@@ -1600,7 +1611,6 @@ public class PartyApp extends JFrame {
 
 	protected void login(String usr, String pass) {
 
-		Customer cus = organizer.getCustomerByUsername(usr);
 		p.getCustomer().logIn(usr, pass);
 		btnRegister.setVisible(false);
 		lblUserName.setText("@" + p.getCustomer().getUsername());
@@ -1619,7 +1629,6 @@ public class PartyApp extends JFrame {
 
 		listItemsCard.revalidate();
 		listItemsCard.repaint();
-
 		pnItemCard.setVisible(false);
 	}
 
@@ -1704,9 +1713,9 @@ public class PartyApp extends JFrame {
 		return pnAttendanceNorth;
 	}
 
-	private JList getListAllItems() {
+	private JList<Item> getListAllItems() {
 		if (listAllItems == null) {
-			listAllItems = new JList(modelAllItems);
+			listAllItems = new JList<Item>(modelAllItems);
 			listAllItems.setToolTipText("Available items for this filters");
 			listAllItems.addMouseListener(new MouseAdapter() {
 				@Override
@@ -1725,7 +1734,7 @@ public class PartyApp extends JFrame {
 
 	protected void showItemSelected() {
 
-		selected = (Item) listAllItems.getSelectedValue();
+		selected = listAllItems.getSelectedValue();
 
 		txtNameItem.setText(selected.getName());
 		textAreaDescriptionItem.setText(selected.getDescription());
@@ -2025,10 +2034,17 @@ public class PartyApp extends JFrame {
 			btnRemove.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 
-					Item sel = (Item) listItemsCard.getSelectedValue();
+					Item sel = listItemsCard.getSelectedValue();
 					int u = (int) spUnitsToRemove.getValue();
+
 					removeItem(sel, u);
 
+					try {
+						if (p.itemIsInParty(sel))
+							showItemInCard(sel);
+					} catch (NullPointerException n) {
+						pnItemCard.setVisible(false);
+					}
 				}
 			});
 			btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -2120,16 +2136,16 @@ public class PartyApp extends JFrame {
 		return spItemsCard;
 	}
 
-	private JList getListItemsCard() {
+	private JList<Item> getListItemsCard() {
 		if (listItemsCard == null) {
-			listItemsCard = new JList(modelCardItems);
+			listItemsCard = new JList<Item>(modelCardItems);
 			listItemsCard.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			listItemsCard.setBorder(null);
 			listItemsCard.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-
-					showItemInCard();
+					Item selected = listItemsCard.getSelectedValue();
+					showItemInCard(selected);
 
 				}
 			});
@@ -2137,11 +2153,10 @@ public class PartyApp extends JFrame {
 		return listItemsCard;
 	}
 
-	protected void showItemInCard() {
+	protected void showItemInCard(Item selected) {
 
 		pnItemCard.setVisible(true);
 
-		Item selected = (Item) listItemsCard.getSelectedValue();
 		int max = p.getSelectedItemsUnits().get(selected);
 		spUnitsToRemove.setModel(new SpinnerNumberModel(1, 1, max, 1));
 		tADescriptionOfThe.setText(selected.getDescription());
@@ -2166,7 +2181,7 @@ public class PartyApp extends JFrame {
 
 	private JLabel getLblItemsOfThe() {
 		if (lblItemsOfThe == null) {
-			lblItemsOfThe = new JLabel("Items of the card");
+			lblItemsOfThe = new JLabel("Items");
 			lblItemsOfThe.setLabelFor(getListItemsCard());
 			lblItemsOfThe.setBackground(Color.WHITE);
 			lblItemsOfThe.setFont(new Font("Tahoma", Font.PLAIN, 23));
@@ -2248,5 +2263,17 @@ public class PartyApp extends JFrame {
 			panelPriceData.add(getPnTotalPrice(), BorderLayout.SOUTH);
 		}
 		return panelPriceData;
+	}
+
+	private JPanel getPnUppButtons() {
+		if (pnUppButtons == null) {
+			pnUppButtons = new JPanel();
+			pnUppButtons.setBackground(Color.WHITE);
+			FlowLayout fl_pnUppButtons = (FlowLayout) pnUppButtons.getLayout();
+			fl_pnUppButtons.setAlignment(FlowLayout.RIGHT);
+			pnUppButtons.add(getBtnRegister());
+			pnUppButtons.add(getBtnSeeOrder());
+		}
+		return pnUppButtons;
 	}
 }

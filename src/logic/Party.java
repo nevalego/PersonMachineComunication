@@ -9,7 +9,6 @@ import java.util.Set;
 public class Party {
 
 	private HashMap<Item, Integer> selectedItemsUnits = new HashMap<>();
-
 	private Customer customer = new Customer();
 	private Date date = new Date();
 	private int attendance = 10;
@@ -18,12 +17,13 @@ public class Party {
 
 	/**
 	 * Add an item to the party reservation
+	 * 
 	 * @param Item i
-	 * @param int units
+	 * @param      int units
 	 */
 	public void addItem(Item i, int units) {
 
-		//Checking if the item has been already chosen for the party reservation
+		// Checking if the item has been already chosen for the party reservation
 		if (itemIsInParty(i)) {
 			int unitsInOrder = selectedItemsUnits.get(i);
 			// Adding the new number of units to the ones already chosen
@@ -35,35 +35,42 @@ public class Party {
 		}
 		// Recalculate total
 		calculateFinalPrice();
-		
+
 		System.out.println(getBill());
 
 	}
 
 	/**
 	 * Delete an specified number of units of an item from the party reservation
+	 * 
 	 * @param Item i
-	 * @param int units
+	 * @param      int units
 	 */
 	public void deleteItem(Item i, int units) {
 		// Number of units of this item that are reserved
 		int total = selectedItemsUnits.get(i);
-		// Resting reserved and removed
-		int result = total - units;
-		// Remove all reserved (or more)
-		if (result <= 0) {
-			// Remove item
-			selectedItemsUnits.remove(i, total);
-		} else {
-			// Update the number of units left for that item
-			selectedItemsUnits.put(i, total - units);
-		}
+//		// Resting reserved and removed
+//		int result = total - units;
+//		// Remove all reserved (or more)
+//		if (result <= 0) {
+//			// Remove item
+//			selectedItemsUnits.remove(i, total);
+//		} else {
+//			// Update the number of units left for that item
+//			selectedItemsUnits.put(i, total - units);
+//		}
+		
+		selectedItemsUnits.remove(i,total);//TODO Quitar el spUnitsToRemove y todo lo que hace que funcione
 		// Recalculate total
 		calculateFinalPrice();
-		
+
 		System.out.println(getBill());
+
 	}
 
+	/**
+	 * Updates the total price for items reserved
+	 */
 	private void calculateFinalPrice() {
 		finalPrice = 0.0;
 		double numGroups = attendance / 10;
@@ -71,8 +78,14 @@ public class Party {
 			finalPrice += i.getUnitPrice() * selectedItemsUnits.get(i) + i.getGroupPrice() * numGroups;
 		}
 	}
-	
-	private boolean itemIsInParty(Item i) {
+
+	/**
+	 * Checks if the item passed as parameter is already reserved in the party
+	 * 
+	 * @param Item i
+	 * @return boolean true if it is reserved,false otherwise
+	 */
+	public boolean itemIsInParty(Item i) {
 
 		for (Item item : selectedItemsUnits.keySet()) {
 			if (item.getCode().equals(i.getCode()))
@@ -81,6 +94,11 @@ public class Party {
 		return false;
 	}
 
+	/**
+	 * Provides a String text for items in category Drink
+	 * 
+	 * @return String drink items
+	 */
 	private List<Item> getDrinkItems() {
 		List<Item> drinks = new ArrayList<Item>();
 		for (Item i : selectedItemsUnits.keySet()) {
@@ -90,6 +108,11 @@ public class Party {
 		return drinks;
 	}
 
+	/**
+	 * Provides a String text for items in category Food
+	 * 
+	 * @return String food items
+	 */
 	private List<Item> getFoodItems() {
 		List<Item> food = new ArrayList<Item>();
 		for (Item i : selectedItemsUnits.keySet()) {
@@ -99,6 +122,11 @@ public class Party {
 		return food;
 	}
 
+	/**
+	 * Provides a String text for items in category Place
+	 * 
+	 * @return String place items
+	 */
 	private List<Item> getPlaceItems() {
 		List<Item> places = new ArrayList<Item>();
 		for (Item i : selectedItemsUnits.keySet()) {
@@ -108,6 +136,11 @@ public class Party {
 		return places;
 	}
 
+	/**
+	 * Provides a String text for items in category Decoration
+	 * 
+	 * @return String deco items
+	 */
 	private List<Item> getDecoItems() {
 		List<Item> decos = new ArrayList<Item>();
 		for (Item i : selectedItemsUnits.keySet()) {
@@ -117,6 +150,11 @@ public class Party {
 		return decos;
 	}
 
+	/**
+	 * Provides a String text for items in category Others
+	 * 
+	 * @return String other items
+	 */
 	private List<Item> getOtherItems() {
 		List<Item> other = new ArrayList<Item>();
 		for (Item i : selectedItemsUnits.keySet()) {
@@ -126,50 +164,103 @@ public class Party {
 		return other;
 	}
 
+	/**
+	 * Sets the number of attendants coming to the party and updates total price
+	 * 
+	 * @param int people
+	 */
 	public void setAttendance(int people) {
 		attendance = people;
 		calculateFinalPrice();
 	}
 
+	/**
+	 * Provides the number of attendants coming to the party
+	 * 
+	 * @return int attendants
+	 */
 	public int getAttendance() {
 		return attendance;
 	}
 
+	/**
+	 * Sets the date for the party
+	 * 
+	 * @param Date date
+	 */
 	public void setDate(Date date) {
 		this.date = date;
 	}
 
+	/**
+	 * Provides the date for the party
+	 * 
+	 * @return Date date
+	 */
 	public Date getDate() {
 		return date;
 	}
 
+	/**
+	 * Provides the text containing the comments of the party reservation
+	 * 
+	 * @return String comments
+	 */
 	public String getComments() {
 		return comments;
 	}
 
+	/**
+	 * Sets the comments done by the customer during the party reservation
+	 * 
+	 * @param String comments
+	 */
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
 
+	/**
+	 * Provides the final price for the party reservation
+	 * 
+	 * @return double price
+	 */
 	public double getFinalPrice() {
 		calculateFinalPrice();
 		return finalPrice;
 	}
 
+	/**
+	 * Provides the list of items reserved
+	 * 
+	 * @return Set<Item> items
+	 */
 	public Set<Item> getSelectedItems() {
 		return selectedItemsUnits.keySet();
 	}
 
+	/**
+	 * Provides the hashmap containing the items reserved and the number of units of
+	 * each item
+	 * 
+	 * @return HashMap<Item, Integer>
+	 */
 	public HashMap<Item, Integer> getSelectedItemsUnits() {
 		return selectedItemsUnits;
 	}
 
+	/**
+	 * Provides the customer associated to the party reservation
+	 * 
+	 * @return Customer customer
+	 */
 	public Customer getCustomer() {
 		return customer;
 	}
 
 	/**
-	 * Provides the final price of the reservation applying the registered user's 15% discount
+	 * Provides the final price of the reservation applying the registered user's
+	 * 15% discount
+	 * 
 	 * @return double discounted total
 	 */
 	public double getWithDiscount() {
@@ -183,9 +274,9 @@ public class Party {
 		selectedItemsUnits.clear();
 	}
 
-	
 	/**
-	 *	Provides the party bill in text format  
+	 * Provides the party bill in text format
+	 * 
 	 * @return String bill
 	 */
 	public String getBill() {
@@ -204,18 +295,18 @@ public class Party {
 		sb.append("** NUMBER OF ATTENDANTS: " + attendance + "\n");
 
 		sb.append(
-				"PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT\n-------------------------------------------------------------------------------\n");
+				"\nPRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT\n--------------------------------------------------------------------------\n");
 
 		sb.append(itemsBill(getDecoItems()));
 		sb.append(itemsBill(getDrinkItems()));
 		sb.append(itemsBill(getFoodItems()));
 		sb.append(itemsBill(getPlaceItems()));
-		sb.append(itemsBill(getOtherItems()));
-		
-		sb.append("\nCOMMENTS\n-------------------------\n");
-		sb.append(comments+"\n");
+		sb.append(itemsBill(getOtherItems()) + "\n");
 
-		String price = "TOTAL BILL ";
+		sb.append("\nCOMMENTS\n-------------------------\n");
+		sb.append(comments + "\n");
+
+		String price = "\nTOTAL BILL ";
 		if (customer.isLogged()) {
 			price += "WITH CUSTOMER DISCOUNT: " + String.valueOf(finalPrice) + " - "
 					+ String.valueOf(finalPrice - getWithDiscount()) + " = " + String.valueOf(getWithDiscount());
@@ -227,15 +318,20 @@ public class Party {
 	}
 
 	/**
-	 * Provides a text for the bill with all items in the list 
+	 * Provides a text for the bill with all items in the list
+	 * 
 	 * @param list of items
-	 * @return String text 
+	 * @return String text
 	 */
 	private String itemsBill(List<Item> list) {
-		String items="";
-		for(Item i :list ) {
-			int units= getSelectedItemsUnits().get(i);
-			items+=i.getName()+" / "+i.getCode()+" / "+String.valueOf(units)+" / "+String.valueOf(units*i.getPrice());
+		String items = "";
+		if (!list.isEmpty()) {
+			items+= String.valueOf(list.get(0).getCategory())+":\n";
+			for (Item i : list) {
+				int units = getSelectedItemsUnits().get(i);
+				items += "* " + i.getName() + " / " + i.getCode() + " / " + String.valueOf(units) + " / "
+						+ String.valueOf(units * i.getPrice()) + " €";
+			}
 		}
 		return items;
 	}

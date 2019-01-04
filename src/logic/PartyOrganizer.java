@@ -53,14 +53,10 @@ public class PartyOrganizer {
 		return null;
 	}
 
-	public Item getByName(String itemName) {
-		for(Item i : items) {
-			if(i.getName().equals(itemName))
-				return i;
-		}
-		return null;
-	}
-
+	/**
+	 * Exports a file contaninig the bill
+	 * @param Party p
+	 */
 	public void createInvoiceFile(Party p) {
 		writer.invoice(p);
 	}
