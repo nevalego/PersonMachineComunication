@@ -15,13 +15,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
-import java.sql.Savepoint;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.help.HelpBroker;
@@ -52,18 +48,14 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import logic.Customer;
 import logic.Item;
 import logic.ItemCategory;
 import logic.Party;
 import logic.PartyOrganizer;
-import javax.swing.border.MatteBorder;
-import javax.swing.JSplitPane;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
 
 public class PartyApp extends JFrame {
 
@@ -646,7 +638,11 @@ public class PartyApp extends JFrame {
 
 	protected void toCard() {
 		listItemsCard.grabFocus();
-		listItemsCard.setSelectedIndex(0);
+		if (p.getSelectedItems().isEmpty())
+			listItemsCard.setSelectedIndex(-1);
+		else {
+			listItemsCard.setSelectedIndex(0);
+		}
 		btnSeeOrder.setEnabled(false);
 		showButtons();
 		((CardLayout) pnCards.getLayout()).show(pnCards, "card");
@@ -2108,10 +2104,7 @@ public class PartyApp extends JFrame {
 
 					removeItem(sel);
 
-					try {
-						if (p.itemIsInParty(sel))
-							showItemInCard(sel);
-					} catch (NullPointerException n) {
+					if (p.getSelectedItems().isEmpty()) {
 						pnItemCard.setVisible(false);
 					}
 				}
@@ -2204,26 +2197,31 @@ public class PartyApp extends JFrame {
 
 	protected void showItemInCard(Item selected) {
 
-		btnRemove.setVisible(true);
-		int max = p.getSelectedItemsUnits().get(selected);
-		tADescriptionOfThe.setText(selected.getDescription());
-		lblItemName.setText(selected.getName());
+		if (!p.getSelectedItems().isEmpty() && p.itemIsInParty(selected)) {
+			pnItemCard.setVisible(true);
+			btnRemove.setVisible(true);
+			
+			int max = p.getSelectedItemsUnits().get(selected);
+			tADescriptionOfThe.setText(selected.getDescription());
+			lblItemName.setText(selected.getName());
 
-		String per = "";
-		double priceItem = max * selected.getPrice();
-		if (!selected.isGroup()) {
-			per = " €/unit";
-		} else {
-			per = " €/ 10 attendants";
+			String per = "";
+			double priceItem = max * selected.getPrice();
+			if (!selected.isGroup()) {
+				per = " €/unit";
+			} else {
+				per = " €/ 10 attendants";
+			}
+			lblPriceItemCardFinal.setText(String.valueOf(priceItem) + " €");
+			lblPriceItemCard.setText(String.valueOf(selected.getPrice() + per));
+			lblUnitsCard.setText(String.valueOf(max) + " unit(s)");
+
+			ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
+			Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
+			lblImageItemCard.setIcon(new ImageIcon(im));
+		}else {
+			pnItemCard.setVisible(false);
 		}
-		lblPriceItemCardFinal.setText(String.valueOf(priceItem) + " €");
-		lblPriceItemCard.setText(String.valueOf(selected.getPrice() + per));
-		lblUnitsCard.setText(String.valueOf(max) + " unit(s)");
-
-		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
-		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
-		lblImageItemCard.setIcon(new ImageIcon(im));
-
 	}
 
 	private JLabel getLblItemsOfThe() {

@@ -73,8 +73,8 @@ public class Party {
 	 */
 	public boolean itemIsInParty(Item i) {
 
-		for (Item item : selectedItemsUnits.keySet()) {
-			if (item.getCode().equals(i.getCode()))
+		for (Item item : getSelectedItems()) {
+			if (item.equals(i))
 				return true;
 		}
 		return false;
