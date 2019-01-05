@@ -19,6 +19,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
+import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,6 +58,12 @@ import logic.Item;
 import logic.ItemCategory;
 import logic.Party;
 import logic.PartyOrganizer;
+import javax.swing.border.MatteBorder;
+import javax.swing.JSplitPane;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class PartyApp extends JFrame {
 
@@ -190,8 +197,6 @@ public class PartyApp extends JFrame {
 	private JPanel pnItemsCard;
 	private JPanel pnRemoveItemCard;
 	private JButton btnRemove;
-	private JLabel lblUnitsToRemove;
-	private JSpinner spUnitsToRemove;
 	private JPanel pnItemCardData;
 	private JLabel lblImageItemCard;
 	private JPanel pnPriceUnitsItemCard;
@@ -210,6 +215,15 @@ public class PartyApp extends JFrame {
 	private JPanel pnCommentsDate;
 	private JPanel panelPriceData;
 	private JPanel pnUppButtons;
+	private JPanel pnInvoice;
+	private JCheckBox chckbxSaveBill;
+	private JPanel panel;
+	private JPanel pnCenterItems;
+	private JPanel pnDateTime;
+	private JPanel pnDateDay;
+	private JLabel lblChooseDateAnd;
+	private JPanel pnUppData;
+	private JPanel pnBottomData;
 
 	/**
 	 * Launch the application.
@@ -364,16 +378,19 @@ public class PartyApp extends JFrame {
 	private JButton getBtnGo() {
 		if (btnGo == null) {
 			btnGo = new JButton("Start");
+			btnGo.setToolTipText("Click here to start the party reservation");
 			btnGo.setHorizontalTextPosition(SwingConstants.CENTER);
 			btnGo.setVerticalAlignment(SwingConstants.BOTTOM);
 			btnGo.setForeground(new Color(255, 255, 255));
 			btnGo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			btnGo.setMnemonic('S');
 			btnGo.setBackground(new Color(219, 112, 147));
-			btnGo.setFont(new Font("Tahoma", Font.PLAIN, 36));
+			btnGo.setFont(new Font("Tahoma", Font.PLAIN, 34));
 			btnGo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					nextCard();
+					listAllItems.grabFocus();
+					listAllItems.setSelectedIndex(0);
 				}
 			});
 		}
@@ -408,22 +425,28 @@ public class PartyApp extends JFrame {
 		if (pnItemsAvailable == null) {
 			pnItemsAvailable = new JPanel();
 			pnItemsAvailable.setBackground(new Color(255, 255, 255));
-			pnItemsAvailable.setLayout(new GridLayout(0, 2, 0, 0));
-			pnItemsAvailable.add(getPnItems());
-			pnItemsAvailable.add(getPnItem());
+			pnItemsAvailable.setLayout(new BorderLayout(0, 0));
+			pnItemsAvailable.add(getPnCenterItems());
+			pnItemsAvailable.add(getLblChooseTheItems(), BorderLayout.NORTH);
 		}
 		return pnItemsAvailable;
 	}
 
 	protected void nextCard() {
-		((CardLayout) pnCards.getLayout()).next(pnCards);
-		cardNumber++;
-		if (cardNumber == 5) {
-			hideButtons();
-		} else
-			showButtons();
-		if (cardNumber != 2)
-			btnSeeOrder.setEnabled(true);
+		if (cardNumber == 1)
+			toCard();
+		else {
+			((CardLayout) pnCards.getLayout()).next(pnCards);
+
+			cardNumber++;
+			if (cardNumber == 5) {
+				hideButtons();
+			} else
+				showButtons();
+
+			if (cardNumber != 2)
+				btnSeeOrder.setEnabled(true);
+		}
 	}
 
 	protected void previousCard() {
@@ -476,6 +499,7 @@ public class PartyApp extends JFrame {
 	private JCheckBox getChckbxFood() {
 		if (chckbxFood == null) {
 			chckbxFood = new JCheckBox("Food");
+			chckbxFood.setToolTipText("Select/unselect food items");
 			chckbxFood.setForeground(new Color(255, 255, 255));
 			chckbxFood.setMnemonic('F');
 			chckbxFood.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -496,6 +520,7 @@ public class PartyApp extends JFrame {
 	private JCheckBox getChckbxDrink() {
 		if (chckbxDrink == null) {
 			chckbxDrink = new JCheckBox("Drink");
+			chckbxDrink.setToolTipText("Select/unselect drink items");
 			chckbxDrink.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					loadItems(chckbxFood.isSelected(), chckbxDrink.isSelected(), chckbxPlace.isSelected(),
@@ -515,6 +540,7 @@ public class PartyApp extends JFrame {
 	private JCheckBox getChckbxPlace() {
 		if (chckbxPlace == null) {
 			chckbxPlace = new JCheckBox("Place");
+			chckbxPlace.setToolTipText("Select/unselect place items");
 			chckbxPlace.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					loadItems(chckbxFood.isSelected(), chckbxDrink.isSelected(), chckbxPlace.isSelected(),
@@ -534,6 +560,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblFilters() {
 		if (lblFilters == null) {
 			lblFilters = new JLabel("Filters:");
+			lblFilters.setToolTipText("You can filter the list by item\u00B4s category");
 			lblFilters.setForeground(new Color(255, 255, 255));
 			lblFilters.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			lblFilters.setBackground(new Color(219, 112, 147));
@@ -544,6 +571,7 @@ public class PartyApp extends JFrame {
 	private JCheckBox getChckbxDecoration() {
 		if (chckbxDecoration == null) {
 			chckbxDecoration = new JCheckBox("Decoration");
+			chckbxDecoration.setToolTipText("Select/unselect decoration items");
 			chckbxDecoration.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					loadItems(chckbxFood.isSelected(), chckbxDrink.isSelected(), chckbxPlace.isSelected(),
@@ -551,7 +579,7 @@ public class PartyApp extends JFrame {
 				}
 			});
 			chckbxDecoration.setForeground(new Color(255, 255, 255));
-			chckbxDecoration.setMnemonic('C');
+			chckbxDecoration.setMnemonic('T');
 			chckbxDecoration.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			chckbxDecoration.setBackground(new Color(219, 112, 147));
 			chckbxDecoration.setSelected(true);
@@ -562,7 +590,8 @@ public class PartyApp extends JFrame {
 
 	private JCheckBox getChckbxOthers() {
 		if (chckbxOthers == null) {
-			chckbxOthers = new JCheckBox("Others");
+			chckbxOthers = new JCheckBox("Other");
+			chckbxOthers.setToolTipText("Select/unselect other items");
 			chckbxOthers.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					loadItems(chckbxFood.isSelected(), chckbxDrink.isSelected(), chckbxPlace.isSelected(),
@@ -570,7 +599,7 @@ public class PartyApp extends JFrame {
 				}
 			});
 			chckbxOthers.setForeground(new Color(255, 255, 255));
-			chckbxOthers.setMnemonic('O');
+			chckbxOthers.setMnemonic('H');
 			chckbxOthers.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			chckbxOthers.setBackground(new Color(219, 112, 147));
 			chckbxOthers.setSelected(true);
@@ -601,9 +630,9 @@ public class PartyApp extends JFrame {
 			btnSeeOrder = new JButton("See Order");
 			btnSeeOrder.setSize(new Dimension(90, 90));
 			btnSeeOrder.setMnemonic('O');
-			btnSeeOrder.setToolTipText("Click here to see order cart");
+			btnSeeOrder.setToolTipText("Click here to see order");
 			btnSeeOrder.setBackground(new Color(255, 255, 255));
-			btnSeeOrder.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnSeeOrder.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			btnSeeOrder.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					toCard();
@@ -616,10 +645,13 @@ public class PartyApp extends JFrame {
 	}
 
 	protected void toCard() {
+		listItemsCard.grabFocus();
+		listItemsCard.setSelectedIndex(0);
+		btnSeeOrder.setEnabled(false);
 		showButtons();
 		((CardLayout) pnCards.getLayout()).show(pnCards, "card");
 		cardNumber++;
-		btnSeeOrder.setEnabled(false);
+
 	}
 
 	protected void setAttendance() {
@@ -641,6 +673,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblChooseTheItems() {
 		if (lblChooseTheItems == null) {
 			lblChooseTheItems = new JLabel("Choose an item");
+			lblChooseTheItems.setToolTipText("Choose an item of the list");
 			lblChooseTheItems.setHorizontalAlignment(SwingConstants.LEFT);
 			lblChooseTheItems.setFont(new Font("Tahoma", Font.PLAIN, 26));
 			lblChooseTheItems.setBackground(new Color(219, 112, 147));
@@ -672,6 +705,7 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtCurrentShoppingCard() {
 		if (txtCurrentShoppingCard == null) {
 			txtCurrentShoppingCard = new JTextField();
+			txtCurrentShoppingCard.setToolTipText("Data of the party");
 			txtCurrentShoppingCard.setBorder(null);
 			txtCurrentShoppingCard.setFont(new Font("Tahoma", Font.PLAIN, 26));
 			txtCurrentShoppingCard.setBackground(Color.WHITE);
@@ -684,38 +718,11 @@ public class PartyApp extends JFrame {
 
 	protected void endParty() {
 
-		p.getCustomer().setName(txtNameData.getText());
-		p.getCustomer().setSurname(txtSurnameData.getText());
-		p.getCustomer().setNIF(txtNIFData.getText());
-		p.setComments(tACommentsData.getText());
-		Date date = calculateDate();
-		p.setDate(date);
+		setValues();
 
-		int att = Integer.parseInt(txtNumAttData.getText());
-		if (att <= 0) {
-			JOptionPane.showMessageDialog(this, "You must specify the number of attendants",
-					"Wrong number of attendants", JOptionPane.ERROR_MESSAGE);
-		} else {
-			p.setAttendance(att);
+		textAreaBill.setText(p.getBill());
 
-			textAreaBill.setText(p.getBill());
-
-		}
 		refreshAll();
-	}
-
-	protected Date calculateDate() {
-
-		int year = (int) spYear.getValue();
-		int month = (int) spMonth.getValue();
-		int day = (int) spDay.getValue();
-		int h = (int) spHour.getValue();
-		int time = (int) spMinutes.getValue();
-
-		@SuppressWarnings("deprecation")
-		Date date = new Date(year, month, day, h, time);
-
-		return date;
 	}
 
 	private JPanel getPnOrderData() {
@@ -742,7 +749,10 @@ public class PartyApp extends JFrame {
 	private JLabel getLblName() {
 		if (lblName == null) {
 			lblName = new JLabel("Name:");
-			lblName.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblName.setDisplayedMnemonic('N');
+			lblName.setToolTipText("Fill with your name");
+			lblName.setLabelFor(getTxtName());
+			lblName.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblName.setBackground(SystemColor.inactiveCaptionBorder);
 		}
 		return lblName;
@@ -751,7 +761,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtName() {
 		if (txtNameData == null) {
 			txtNameData = new JTextField();
-			txtNameData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			txtNameData.setToolTipText("Write here your name");
+			txtNameData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			txtNameData.setColumns(10);
 		}
 		return txtNameData;
@@ -771,7 +782,10 @@ public class PartyApp extends JFrame {
 	private JLabel getLblSurname() {
 		if (lblSurname == null) {
 			lblSurname = new JLabel("Surname:");
-			lblSurname.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblSurname.setDisplayedMnemonic('S');
+			lblSurname.setLabelFor(getTxtSurname());
+			lblSurname.setToolTipText("Fill with your surname");
+			lblSurname.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblSurname.setBackground(SystemColor.inactiveCaptionBorder);
 		}
 		return lblSurname;
@@ -780,7 +794,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtSurname() {
 		if (txtSurnameData == null) {
 			txtSurnameData = new JTextField();
-			txtSurnameData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			txtSurnameData.setToolTipText("Write here your surname");
+			txtSurnameData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			txtSurnameData.setColumns(10);
 		}
 		return txtSurnameData;
@@ -800,8 +815,12 @@ public class PartyApp extends JFrame {
 	private JLabel getLblNumAttData() {
 		if (lblNumAttData == null) {
 			lblNumAttData = new JLabel("Number of Attendants:");
+			lblNumAttData.setDisplayedMnemonic('A');
+			lblNumAttData.setHorizontalAlignment(SwingConstants.LEFT);
+			lblNumAttData.setToolTipText("Edit the number of attendants coming to the party");
+			lblNumAttData.setLabelFor(getTxtNumAttData());
 			lblNumAttData.setBackground(SystemColor.inactiveCaptionBorder);
-			lblNumAttData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblNumAttData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblNumAttData;
 	}
@@ -809,7 +828,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtNumAttData() {
 		if (txtNumAttData == null) {
 			txtNumAttData = new JTextField();
-			txtNumAttData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			txtNumAttData.setToolTipText("Edit here the number of attendants");
+			txtNumAttData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			txtNumAttData.setColumns(10);
 			txtNumAttData.setText(String.valueOf(p.getAttendance()));
 		}
@@ -842,9 +862,11 @@ public class PartyApp extends JFrame {
 	private JLabel getLblComentHere() {
 		if (lblComentHere == null) {
 			lblComentHere = new JLabel("Coment here ( Optional ):");
-			lblComentHere.setHorizontalAlignment(SwingConstants.LEFT);
+			lblComentHere.setLabelFor(getTACommentsData());
+			lblComentHere.setDisplayedMnemonic('C');
+			lblComentHere.setHorizontalAlignment(SwingConstants.CENTER);
 			lblComentHere.setBackground(SystemColor.inactiveCaptionBorder);
-			lblComentHere.setFont(new Font("Tahoma", Font.PLAIN, 18));
+			lblComentHere.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblComentHere;
 	}
@@ -854,11 +876,9 @@ public class PartyApp extends JFrame {
 			pnDate = new JPanel();
 			pnDate.setBackground(Color.WHITE);
 			pnDate.setLayout(new GridLayout(0, 1, 0, 0));
-			pnDate.add(getPnDay());
-			pnDate.add(getPnMonth());
-			pnDate.add(getPnYear());
-			pnDate.add(getPnHour());
-			pnDate.add(getPnMinutes());
+			pnDate.add(getLblChooseDateAnd());
+			pnDate.add(getPnDateDay());
+			pnDate.add(getPnDateTime());
 		}
 		return pnDate;
 	}
@@ -868,8 +888,10 @@ public class PartyApp extends JFrame {
 
 			SpinnerModel spDayModel = new SpinnerNumberModel(1, 1, 31, 1);
 			spDay = new JSpinner(spDayModel);
+			spDay.setForeground(Color.BLACK);
+			spDay.setToolTipText("Choose a day for the party");
 			spDay.setBorder(null);
-			spDay.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			spDay.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			spDay.setBackground(Color.WHITE);
 		}
 		return spDay;
@@ -878,8 +900,12 @@ public class PartyApp extends JFrame {
 	private JLabel getLblDay() {
 		if (lblDay == null) {
 			lblDay = new JLabel("Day:");
+			lblDay.setForeground(Color.BLACK);
+			lblDay.setDisplayedMnemonic('D');
+			lblDay.setLabelFor(getSpDay());
+			lblDay.setToolTipText("Choose a day for the party");
 			lblDay.setHorizontalAlignment(SwingConstants.RIGHT);
-			lblDay.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblDay.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblDay.setBackground(Color.WHITE);
 		}
 		return lblDay;
@@ -888,8 +914,12 @@ public class PartyApp extends JFrame {
 	private JLabel getLblMonth() {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Month:");
+			lblMonth.setForeground(Color.BLACK);
+			lblMonth.setToolTipText("Choose a month for the party");
+			lblMonth.setLabelFor(getSpMonth());
+			lblMonth.setDisplayedMnemonic('M');
 			lblMonth.setHorizontalAlignment(SwingConstants.RIGHT);
-			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblMonth.setBackground(Color.WHITE);
 		}
 		return lblMonth;
@@ -899,8 +929,10 @@ public class PartyApp extends JFrame {
 		if (spMonth == null) {
 			SpinnerModel spMonthModel = new SpinnerNumberModel(1, 1, 12, 1);
 			spMonth = new JSpinner(spMonthModel);
+			spMonth.setForeground(Color.BLACK);
+			spMonth.setToolTipText("Choose a month for the party");
 			spMonth.setBorder(null);
-			spMonth.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			spMonth.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			spMonth.setBackground(Color.WHITE);
 		}
 		return spMonth;
@@ -909,8 +941,12 @@ public class PartyApp extends JFrame {
 	private JLabel getLblYear() {
 		if (lblYear == null) {
 			lblYear = new JLabel("Year:");
+			lblYear.setDisplayedMnemonic('Y');
+			lblYear.setForeground(Color.BLACK);
+			lblYear.setLabelFor(getSpYear());
+			lblYear.setToolTipText("Choose a year for the party");
 			lblYear.setHorizontalAlignment(SwingConstants.RIGHT);
-			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblYear.setBackground(Color.WHITE);
 		}
 		return lblYear;
@@ -920,8 +956,10 @@ public class PartyApp extends JFrame {
 		if (spYear == null) {
 			SpinnerModel spYearModel = new SpinnerNumberModel(2019, 2019, 2039, 1);
 			spYear = new JSpinner(spYearModel);
+			spYear.setForeground(Color.BLACK);
+			spYear.setToolTipText("Choose a year for the party");
 			spYear.setBorder(null);
-			spYear.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			spYear.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			spYear.setBackground(Color.WHITE);
 		}
 		return spYear;
@@ -930,10 +968,11 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtFinalPrice() {
 		if (txtFinalPrice == null) {
 			txtFinalPrice = new JTextField();
+			txtFinalPrice.setToolTipText("Total price of the party reservation");
 			txtFinalPrice.setBorder(null);
 			txtFinalPrice.setHorizontalAlignment(SwingConstants.CENTER);
 			txtFinalPrice.setForeground(Color.BLACK);
-			txtFinalPrice.setFont(new Font("Tahoma", Font.PLAIN, 25));
+			txtFinalPrice.setFont(new Font("Tahoma", Font.PLAIN, 30));
 			txtFinalPrice.setText("0.0 \u20AC");
 			txtFinalPrice.setBackground(Color.WHITE);
 			txtFinalPrice.setEditable(false);
@@ -956,7 +995,10 @@ public class PartyApp extends JFrame {
 	private JLabel getLblNif() {
 		if (lblNif == null) {
 			lblNif = new JLabel("NIF:");
-			lblNif.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblNif.setDisplayedMnemonic('F');
+			lblNif.setLabelFor(getTxtNIF());
+			lblNif.setToolTipText("Fill with your National Identification NIF");
+			lblNif.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			lblNif.setBackground(SystemColor.inactiveCaptionBorder);
 		}
 		return lblNif;
@@ -965,7 +1007,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtNIF() {
 		if (txtNIFData == null) {
 			txtNIFData = new JTextField();
-			txtNIFData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			txtNIFData.setToolTipText("Write here your NIF");
+			txtNIFData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			txtNIFData.setBackground(Color.WHITE);
 			txtNIFData.setColumns(10);
 		}
@@ -1013,7 +1056,7 @@ public class PartyApp extends JFrame {
 			tACommentsData = new JTextArea();
 			tACommentsData.setBorder(new EtchedBorder(EtchedBorder.RAISED, null, null));
 			tACommentsData.setToolTipText("Write here comments");
-			tACommentsData.setFont(new Font("Courier New", Font.PLAIN, 15));
+			tACommentsData.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			tACommentsData.setLineWrap(true);
 			tACommentsData.setWrapStyleWord(true);
 		}
@@ -1084,6 +1127,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblFinalPrice() {
 		if (lblFinalPrice == null) {
 			lblFinalPrice = new JLabel("Final Price:");
+			lblFinalPrice.setToolTipText("Final price of the party reservation");
 			lblFinalPrice.setLabelFor(getTxtFinalPrice());
 			lblFinalPrice.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblFinalPrice.setBackground(Color.WHITE);
@@ -1119,8 +1163,13 @@ public class PartyApp extends JFrame {
 	private JLabel getLblHour() {
 		if (lblHour == null) {
 			lblHour = new JLabel("Hour:");
+			lblHour.setDisplayedMnemonic('H');
+			lblHour.setForeground(Color.BLACK);
+			lblHour.setBackground(Color.WHITE);
+			lblHour.setLabelFor(getSpHour());
+			lblHour.setToolTipText("Choose an hour for the party");
 			lblHour.setHorizontalAlignment(SwingConstants.RIGHT);
-			lblHour.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblHour.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblHour;
 	}
@@ -1128,8 +1177,12 @@ public class PartyApp extends JFrame {
 	private JLabel getLblMinutes() {
 		if (lblMinutes == null) {
 			lblMinutes = new JLabel("Minutes:");
+			lblMinutes.setDisplayedMnemonic('I');
+			lblMinutes.setForeground(Color.BLACK);
+			lblMinutes.setBackground(Color.WHITE);
+			lblMinutes.setToolTipText("Choose the minutes for the party time");
 			lblMinutes.setHorizontalAlignment(SwingConstants.RIGHT);
-			lblMinutes.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblMinutes.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblMinutes;
 	}
@@ -1138,8 +1191,11 @@ public class PartyApp extends JFrame {
 		if (spHour == null) {
 			SpinnerModel spHourModel = new SpinnerNumberModel(18, 1, 24, 1);
 			spHour = new JSpinner(spHourModel);
+			spHour.setForeground(Color.BLACK);
+			spHour.setBackground(Color.WHITE);
+			spHour.setToolTipText("Choose an hour for the party");
 			spHour.setBorder(null);
-			spHour.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			spHour.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return spHour;
 	}
@@ -1148,10 +1204,11 @@ public class PartyApp extends JFrame {
 		if (spMinutes == null) {
 			SpinnerModel spMinModel = new SpinnerNumberModel(00, 0, 59, 1);
 			spMinutes = new JSpinner(spMinModel);
-			spMinutes.setForeground(Color.WHITE);
+			spMinutes.setToolTipText("Choose the minutes for the party time");
+			spMinutes.setForeground(Color.BLACK);
 			spMinutes.setBorder(null);
-			spMinutes.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			spMinutes.setBackground(SystemColor.inactiveCaptionBorder);
+			spMinutes.setFont(new Font("Tahoma", Font.PLAIN, 17));
+			spMinutes.setBackground(Color.WHITE);
 		}
 		return spMinutes;
 	}
@@ -1159,6 +1216,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblLogoWelcome() {
 		if (lblLogoWelcome == null) {
 			lblLogoWelcome = new JLabel("");
+			lblLogoWelcome.setToolTipText("Logo of the Party Organizer App");
 			lblLogoWelcome.setHorizontalAlignment(SwingConstants.CENTER);
 			ImageIcon img = new ImageIcon(PartyApp.class.getResource("/img/logo.jpg"));
 			Image im = img.getImage().getScaledInstance(390, 390, Image.SCALE_DEFAULT);
@@ -1219,17 +1277,18 @@ public class PartyApp extends JFrame {
 			btnConfirm = new JButton("Confirm");
 			btnConfirm.setToolTipText("Click here to continue the order");
 			btnConfirm.setMnemonic('N');
-			btnConfirm.setForeground(Color.WHITE);
-			btnConfirm.setBackground(new Color(219, 112, 147));
-			btnConfirm.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnConfirm.setForeground(Color.BLACK);
+			btnConfirm.setBackground(Color.WHITE);
+			btnConfirm.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			btnConfirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
 					if (lastCard()) {
 						if (check()) {
-							
-							confirm();
-							askInvoice();
+							organizer.createParty(p);
+							if (chckbxSaveBill.isSelected()) {
+								organizer.createInvoiceFile(p);
+							}
 							restartApp();
 						} else {
 							JOptionPane.showMessageDialog(null, "You must fill data for the party reservation",
@@ -1237,10 +1296,10 @@ public class PartyApp extends JFrame {
 						}
 					} else {
 						if (dataCard()) {
-							setValues();// TODO el nombre ,apellido y NIF no se guardan ,tampoco la fecha
+							setValues();
 							showBill();
 						}
-							
+						btnSeeOrder.setEnabled(true);
 						nextCard();
 
 					}
@@ -1255,13 +1314,37 @@ public class PartyApp extends JFrame {
 
 		p.getCustomer().setName(txtNameData.getText());
 		p.getCustomer().setSurname(txtSurnameData.getText());
-		Date date = new Date();
-		//TODO date.setMonth(spMonth.getValue());
-		
+
+		String date = calculateDate();
 		p.setDate(date);
 		p.getCustomer().setNIF(txtNIFData.getText());
 		p.getCustomer().setTelephone(txtTelephoneData.getText());
 		p.setComments(tACommentsData.getText());
+
+		int att = Integer.parseInt(txtNumAttData.getText());
+		p.setAttendance(att);
+
+	}
+
+	private String calculateDate() {
+		String date = "";
+		date += String.valueOf(spDay.getValue()) + "/";
+		date += String.valueOf(spMonth.getValue()) + "/";
+		date += String.valueOf(spYear.getValue()) + " a las ";
+
+		if ((int) spHour.getValue() < 10) {
+			date += "0" + String.valueOf(spHour.getValue());
+		} else
+			date += String.valueOf(spHour.getValue());
+
+		date += ":";
+
+		if ((int) spMinutes.getValue() < 10) {
+			date += "0" + String.valueOf(spMinutes.getValue());
+		} else
+			date += String.valueOf(spMinutes.getValue());
+
+		return date;
 	}
 
 	protected void showBill() {
@@ -1283,10 +1366,6 @@ public class PartyApp extends JFrame {
 		return false;
 	}
 
-	protected void confirm() {
-		organizer.createParty(p);
-	}
-
 	protected boolean check() {
 
 		return checkNameSurname() && checkNIFTelephone();
@@ -1294,33 +1373,11 @@ public class PartyApp extends JFrame {
 	}
 
 	private boolean checkNIFTelephone() {
-		if (txtNIFData.getText().equals("") || txtTelephoneData.getText().equals("")) {
-			JOptionPane.showMessageDialog(this, "You must write your NIF and telephone", "Wrong data",
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		return true;
+		return !(txtNIFData.getText().equals("") || txtTelephoneData.getText().equals(""));
 	}
 
 	private boolean checkNameSurname() {
-
-		if (txtNameData.getText().equals("") || txtSurnameData.getText().equals("")) {
-			JOptionPane.showMessageDialog(this, "You must write your name and surname", "Wrong data",
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		return true;
-	}
-
-	protected void askInvoice() {
-
-		int answer = JOptionPane.showConfirmDialog(btnConfirm, "Do you wish to obtain the invoice file ? ",
-				"Wish Invoice", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-				new ImageIcon("src/img/interrogacion.jpg"));
-		if (answer == JOptionPane.YES_OPTION) {
-			organizer.createInvoiceFile(p);
-		}
-
+		return !(txtNameData.getText().equals("") || txtSurnameData.getText().equals(""));
 	}
 
 	private JPanel getPnBillSummary() {
@@ -1329,6 +1386,7 @@ public class PartyApp extends JFrame {
 			pnBillSummary.setBackground(Color.WHITE);
 			pnBillSummary.setLayout(new BorderLayout(0, 0));
 			pnBillSummary.add(getTextAreaBill(), BorderLayout.CENTER);
+			pnBillSummary.add(getPnInvoice(), BorderLayout.SOUTH);
 		}
 		return pnBillSummary;
 	}
@@ -1336,9 +1394,10 @@ public class PartyApp extends JFrame {
 	private JButton getBtnRegister() {
 		if (btnRegister == null) {
 			btnRegister = new JButton("Register");
+			btnRegister.setToolTipText("Click here to register or log in");
 			btnRegister.setBackground(new Color(221, 160, 221));
 			btnRegister.setForeground(new Color(0, 0, 0));
-			btnRegister.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnRegister.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			btnRegister.setMnemonic('R');
 			btnRegister.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
@@ -1406,7 +1465,7 @@ public class PartyApp extends JFrame {
 		if (lblNumberOfAttendants == null) {
 			lblNumberOfAttendants = new JLabel("Number of Attendants:");
 			lblNumberOfAttendants.setToolTipText("Specify number of attendants on the right");
-			lblNumberOfAttendants.setDisplayedMnemonic('T');
+			lblNumberOfAttendants.setDisplayedMnemonic('A');
 			lblNumberOfAttendants.setLabelFor(getTxtNAttendants());
 			lblNumberOfAttendants.setForeground(Color.BLACK);
 			lblNumberOfAttendants.setBackground(Color.WHITE);
@@ -1418,7 +1477,7 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtNAttendants() {
 		if (txtNAttendants == null) {
 			txtNAttendants = new JTextField();
-			txtNAttendants.setToolTipText("Set the number of people going to the party.Default vakue is 10 attendants");
+			txtNAttendants.setToolTipText("Set the number of people going to the party.Default value is 10 attendants");
 			txtNAttendants.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			txtNAttendants.setText(String.valueOf(p.getAttendance()));
 		}
@@ -1466,7 +1525,7 @@ public class PartyApp extends JFrame {
 	private JButton getBtnBack() {
 		if (btnBack == null) {
 			btnBack = new JButton("Back");
-			btnBack.setToolTipText("Click here to go back to the previous step");
+			btnBack.setToolTipText("Click here to go back");
 			btnBack.setBackground(Color.WHITE);
 			btnBack.setMnemonic('B');
 			btnBack.addActionListener(new ActionListener() {
@@ -1475,7 +1534,7 @@ public class PartyApp extends JFrame {
 					previousCard();
 				}
 			});
-			btnBack.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnBack.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return btnBack;
 	}
@@ -1525,13 +1584,19 @@ public class PartyApp extends JFrame {
 	private JButton getBtnClearAll() {
 		if (btnClearAll == null) {
 			btnClearAll = new JButton("Clear All");
+			btnClearAll.setToolTipText("Click here to remove all items in the order");
 			btnClearAll.setMnemonic('L');
 			btnClearAll.setBackground(Color.WHITE);
 			btnClearAll.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			btnClearAll.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					clearPartyOrder();
-					refreshAll();
+
+					int answer = JOptionPane.showConfirmDialog(null,
+							"Are you sure you want to delete all items in the order ? ");
+					if (answer == JOptionPane.YES_OPTION) {
+						clearPartyOrder();
+						refreshAll();
+					}
 				}
 			});
 		}
@@ -1543,16 +1608,14 @@ public class PartyApp extends JFrame {
 		p.clearOrder();
 		modelCardItems.clear();
 
-		pnItemCard.setVisible(false);
 		listItemsCard.revalidate();
 		listItemsCard.repaint();
 
 	}
 
-	protected void removeItem(Item i, int u) {
+	protected void removeItem(Item i) {
 
-		// TODO Falla al eliminar de uno en uno las unidades de los items
-		p.deleteItem(i, u);
+		p.deleteItem(i);
 
 		refreshAll();
 	}
@@ -1575,7 +1638,7 @@ public class PartyApp extends JFrame {
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton("Cancel");
-			btnCancel.setToolTipText("Click here to start again");
+			btnCancel.setToolTipText("Click here to cancel ");
 			btnCancel.setMnemonic('C');
 			btnCancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
@@ -1583,7 +1646,7 @@ public class PartyApp extends JFrame {
 				}
 			});
 			btnCancel.setBackground(Color.WHITE);
-			btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return btnCancel;
 	}
@@ -1629,7 +1692,6 @@ public class PartyApp extends JFrame {
 
 		listItemsCard.revalidate();
 		listItemsCard.repaint();
-		pnItemCard.setVisible(false);
 	}
 
 	public void refreshAll() {
@@ -1648,9 +1710,7 @@ public class PartyApp extends JFrame {
 			pnItem.setBorder(null);
 			pnItem.setBackground(Color.WHITE);
 			pnItem.setLayout(new BorderLayout(0, 0));
-			pnItem.add(getPnImagePrice(), BorderLayout.CENTER);
-			pnItem.add(getPnButtonsItem(), BorderLayout.SOUTH);
-			pnItem.add(getTxtNameItem(), BorderLayout.NORTH);
+			pnItem.add(getPanel(), BorderLayout.CENTER);
 		}
 		return pnItem;
 	}
@@ -1716,36 +1776,36 @@ public class PartyApp extends JFrame {
 	private JList<Item> getListAllItems() {
 		if (listAllItems == null) {
 			listAllItems = new JList<Item>(modelAllItems);
-			listAllItems.setToolTipText("Available items for this filters");
-			listAllItems.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
-
-					showItemSelected();
-
+			listAllItems.setFocusTraversalPolicyProvider(true);
+			listAllItems.setFont(new Font("Tahoma", Font.PLAIN, 16));
+			listAllItems.setBackground(Color.WHITE);
+			listAllItems.setToolTipText("List of available items ");
+			listAllItems.addListSelectionListener(new ListSelectionListener() {
+				public void valueChanged(ListSelectionEvent arg0) {
+					Item selected = listAllItems.getSelectedValue();
+					showItemSelected(selected);
 				}
 			});
-			listAllItems.setFont(new Font("Tahoma", Font.PLAIN, 16));
 
-			listAllItems.setBackground(Color.WHITE);
 		}
 		return listAllItems;
 	}
 
-	protected void showItemSelected() {
-
-		selected = listAllItems.getSelectedValue();
+	protected void showItemSelected(Item selected) {
 
 		txtNameItem.setText(selected.getName());
 		textAreaDescriptionItem.setText(selected.getDescription());
 		spUnitsItem.setValue(1);
+		btnAddItem.setVisible(true);
 
 		if (selected.isGroup()) {
 			txtPrice.setText(String.valueOf(selected.getGroupPrice()) + " €/group");
-			spUnitsItem.setEnabled(false);
+			lblUnits.setVisible(false);
+			spUnitsItem.setVisible(false);
 		} else {
 			txtPrice.setText(String.valueOf(selected.getUnitPrice()) + " €/unit");
-			spUnitsItem.setEnabled(true);
+			lblUnits.setVisible(true);
+			spUnitsItem.setVisible(true);
 		}
 		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
 		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
@@ -1770,14 +1830,17 @@ public class PartyApp extends JFrame {
 	private JButton getBtnAddItem() {
 		if (btnAddItem == null) {
 			btnAddItem = new JButton("Add item");
+			btnAddItem.setForeground(Color.WHITE);
 			btnAddItem.setToolTipText("Click here to add this item to the party order");
 			btnAddItem.setMnemonic('A');
-			btnAddItem.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			btnAddItem.setBackground(Color.WHITE);
+			btnAddItem.setVisible(false);
+			btnAddItem.setFont(new Font("Tahoma", Font.PLAIN, 17));
+			btnAddItem.setBackground(new Color(219, 112, 147));
 			btnAddItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					addItemToParty();
+					Item selected = (Item) listAllItems.getSelectedValue();
+					addItemToParty(selected);
 
 					((CardLayout) pnCards.getLayout()).show(pnCards, "items");
 
@@ -1788,7 +1851,7 @@ public class PartyApp extends JFrame {
 		return btnAddItem;
 	}
 
-	protected void addItemToParty() {
+	protected void addItemToParty(Item selected) {
 
 		p.addItem(selected, (int) spUnitsItem.getValue());
 
@@ -1838,6 +1901,7 @@ public class PartyApp extends JFrame {
 			lblUnits.setToolTipText("Units specified on the right");
 			lblUnits.setHorizontalAlignment(SwingConstants.RIGHT);
 			lblUnits.setFont(new Font("Tahoma", Font.PLAIN, 17));
+			lblUnits.setVisible(false);
 			lblUnits.setLabelFor(getSpUnitsItem());
 			lblUnits.setDisplayedMnemonic('U');
 		}
@@ -1859,7 +1923,8 @@ public class PartyApp extends JFrame {
 		if (spUnitsItem == null) {
 			SpinnerModel m = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
 			spUnitsItem = new JSpinner(m);
-			spUnitsItem.setToolTipText("Select here the numebr of items you want for the unit-price ones");
+			spUnitsItem.setToolTipText("Select here the number of items you want");
+			spUnitsItem.setVisible(false);
 			spUnitsItem.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return spUnitsItem;
@@ -1910,7 +1975,6 @@ public class PartyApp extends JFrame {
 			pnTitleFilters = new JPanel();
 			pnTitleFilters.setBackground(Color.WHITE);
 			pnTitleFilters.setLayout(new GridLayout(0, 1, 0, 0));
-			pnTitleFilters.add(getLblChooseTheItems());
 			pnTitleFilters.add(getPnFilters());
 		}
 		return pnTitleFilters;
@@ -1919,6 +1983,7 @@ public class PartyApp extends JFrame {
 	private JPanel getPnFinalPriceCard() {
 		if (pnFinalPriceCard == null) {
 			pnFinalPriceCard = new JPanel();
+			pnFinalPriceCard.setToolTipText("Total price of the current order");
 			pnFinalPriceCard.setBackground(Color.WHITE);
 			pnFinalPriceCard.setLayout(new BorderLayout(0, 0));
 			pnFinalPriceCard.add(getLblFinalPriceCard(), BorderLayout.NORTH);
@@ -1930,6 +1995,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblFinalPriceCard() {
 		if (lblFinalPriceCard == null) {
 			lblFinalPriceCard = new JLabel("Total:");
+			lblFinalPriceCard.setToolTipText("Total price for the current order");
 			lblFinalPriceCard.setAlignmentX(0.5f);
 			lblFinalPriceCard.setBackground(Color.WHITE);
 			lblFinalPriceCard.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -1951,7 +2017,10 @@ public class PartyApp extends JFrame {
 	private JLabel getLblTelephoneData() {
 		if (lblTelephoneData == null) {
 			lblTelephoneData = new JLabel("Telephone:");
-			lblTelephoneData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblTelephoneData.setDisplayedMnemonic('T');
+			lblTelephoneData.setToolTipText("Fill with your telephone number");
+			lblTelephoneData.setLabelFor(getTxtTelephoneData());
+			lblTelephoneData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblTelephoneData;
 	}
@@ -1959,7 +2028,8 @@ public class PartyApp extends JFrame {
 	private JTextField getTxtTelephoneData() {
 		if (txtTelephoneData == null) {
 			txtTelephoneData = new JTextField();
-			txtTelephoneData.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			txtTelephoneData.setToolTipText("Write here you telephone number");
+			txtTelephoneData.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			txtTelephoneData.setColumns(10);
 		}
 		return txtTelephoneData;
@@ -1968,6 +2038,7 @@ public class PartyApp extends JFrame {
 	private JTextArea getTextAreaBill() {
 		if (textAreaBill == null) {
 			textAreaBill = new JTextArea();
+			textAreaBill.setToolTipText("Party bill shown here");
 			textAreaBill.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			textAreaBill.setEditable(false);
 			textAreaBill.setLineWrap(true);
@@ -1993,7 +2064,6 @@ public class PartyApp extends JFrame {
 			pnItemCard = new JPanel();
 			pnItemCard.setToolTipText("Item selected");
 			pnItemCard.setBorder(null);
-			pnItemCard.setVisible(false);
 			pnItemCard.setBackground(Color.WHITE);
 			pnItemCard.setLayout(new BorderLayout(0, 0));
 			pnItemCard.add(getPnRemoveItemCard(), BorderLayout.SOUTH);
@@ -2021,8 +2091,6 @@ public class PartyApp extends JFrame {
 			pnRemoveItemCard.setBorder(null);
 			pnRemoveItemCard.setBackground(Color.WHITE);
 			pnRemoveItemCard.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-			pnRemoveItemCard.add(getLblUnitsToRemove());
-			pnRemoveItemCard.add(getSpUnitsToRemove());
 			pnRemoveItemCard.add(getBtnRemove());
 		}
 		return pnRemoveItemCard;
@@ -2030,14 +2098,15 @@ public class PartyApp extends JFrame {
 
 	private JButton getBtnRemove() {
 		if (btnRemove == null) {
-			btnRemove = new JButton("Remove units");
+			btnRemove = new JButton("Remove item");
+			btnRemove.setVisible(false);
+			btnRemove.setToolTipText("Click here to remove this item from the order");
 			btnRemove.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 
 					Item sel = listItemsCard.getSelectedValue();
-					int u = (int) spUnitsToRemove.getValue();
 
-					removeItem(sel, u);
+					removeItem(sel);
 
 					try {
 						if (p.itemIsInParty(sel))
@@ -2047,32 +2116,11 @@ public class PartyApp extends JFrame {
 					}
 				}
 			});
-			btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			btnRemove.setFont(new Font("Tahoma", Font.PLAIN, 17));
 			btnRemove.setBackground(Color.WHITE);
-			btnRemove.setMnemonic('R');
+			btnRemove.setMnemonic('M');
 		}
 		return btnRemove;
-	}
-
-	private JLabel getLblUnitsToRemove() {
-		if (lblUnitsToRemove == null) {
-			lblUnitsToRemove = new JLabel("Units:");
-			lblUnitsToRemove.setLabelFor(getSpUnitsToRemove());
-			lblUnitsToRemove.setDisplayedMnemonic('U');
-			lblUnitsToRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		}
-		return lblUnitsToRemove;
-	}
-
-	private JSpinner getSpUnitsToRemove() {
-		if (spUnitsToRemove == null) {
-			spUnitsToRemove = new JSpinner();
-			spUnitsToRemove.setForeground(Color.BLACK);
-			spUnitsToRemove.setBackground(Color.WHITE);
-			spUnitsToRemove.setModel(new SpinnerNumberModel(new Integer(1), null, null, new Integer(1)));
-			spUnitsToRemove.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		}
-		return spUnitsToRemove;
 	}
 
 	private JPanel getPnItemCardData() {
@@ -2091,6 +2139,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblImageItemCard() {
 		if (lblImageItemCard == null) {
 			lblImageItemCard = new JLabel("");
+			lblImageItemCard.setToolTipText("Image of the item");
 			lblImageItemCard.setBackground(Color.WHITE);
 		}
 		return lblImageItemCard;
@@ -2112,6 +2161,7 @@ public class PartyApp extends JFrame {
 	private JTextArea getTADescriptionOfThe() {
 		if (tADescriptionOfThe == null) {
 			tADescriptionOfThe = new JTextArea();
+			tADescriptionOfThe.setToolTipText("Description of the item");
 			tADescriptionOfThe.setEditable(false);
 			tADescriptionOfThe.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
@@ -2139,14 +2189,13 @@ public class PartyApp extends JFrame {
 	private JList<Item> getListItemsCard() {
 		if (listItemsCard == null) {
 			listItemsCard = new JList<Item>(modelCardItems);
+			listItemsCard.setToolTipText("List of items chosen for the party");
 			listItemsCard.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			listItemsCard.setBorder(null);
-			listItemsCard.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
+			listItemsCard.addListSelectionListener(new ListSelectionListener() {
+				public void valueChanged(ListSelectionEvent arg0) {
 					Item selected = listItemsCard.getSelectedValue();
 					showItemInCard(selected);
-
 				}
 			});
 		}
@@ -2155,10 +2204,8 @@ public class PartyApp extends JFrame {
 
 	protected void showItemInCard(Item selected) {
 
-		pnItemCard.setVisible(true);
-
+		btnRemove.setVisible(true);
 		int max = p.getSelectedItemsUnits().get(selected);
-		spUnitsToRemove.setModel(new SpinnerNumberModel(1, 1, max, 1));
 		tADescriptionOfThe.setText(selected.getDescription());
 		lblItemName.setText(selected.getName());
 
@@ -2182,6 +2229,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblItemsOfThe() {
 		if (lblItemsOfThe == null) {
 			lblItemsOfThe = new JLabel("Items");
+			lblItemsOfThe.setToolTipText("Items you chose for the party");
 			lblItemsOfThe.setLabelFor(getListItemsCard());
 			lblItemsOfThe.setBackground(Color.WHITE);
 			lblItemsOfThe.setFont(new Font("Tahoma", Font.PLAIN, 23));
@@ -2192,6 +2240,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblPriceItemCard() {
 		if (lblPriceItemCard == null) {
 			lblPriceItemCard = new JLabel("");
+			lblPriceItemCard.setToolTipText("Price for this item");
 			lblPriceItemCard.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblPriceItemCard;
@@ -2200,6 +2249,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblUnitsCard() {
 		if (lblUnitsCard == null) {
 			lblUnitsCard = new JLabel("");
+			lblUnitsCard.setToolTipText("Number of units selected for the party");
 			lblUnitsCard.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblUnitsCard;
@@ -2208,6 +2258,7 @@ public class PartyApp extends JFrame {
 	private JLabel getLblPriceItemCardFinal() {
 		if (lblPriceItemCardFinal == null) {
 			lblPriceItemCardFinal = new JLabel("");
+			lblPriceItemCardFinal.setToolTipText("Final price of the item ");
 			lblPriceItemCardFinal.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		}
 		return lblPriceItemCardFinal;
@@ -2236,11 +2287,8 @@ public class PartyApp extends JFrame {
 		if (pnDataCenter == null) {
 			pnDataCenter = new JPanel();
 			pnDataCenter.setLayout(new GridLayout(0, 1, 0, 0));
-			pnDataCenter.add(getPnAttData());
-			pnDataCenter.add(getPnNameData());
-			pnDataCenter.add(getPnSurnameData());
-			pnDataCenter.add(getPnNIFData());
-			pnDataCenter.add(getPnTelephoneData());
+			pnDataCenter.add(getPnUppData());
+			pnDataCenter.add(getPnBottomData());
 		}
 		return pnDataCenter;
 	}
@@ -2261,6 +2309,7 @@ public class PartyApp extends JFrame {
 			panelPriceData.setBackground(Color.WHITE);
 			panelPriceData.setLayout(new BorderLayout(0, 0));
 			panelPriceData.add(getPnTotalPrice(), BorderLayout.SOUTH);
+			panelPriceData.add(getPnAttData(), BorderLayout.NORTH);
 		}
 		return panelPriceData;
 	}
@@ -2275,5 +2324,101 @@ public class PartyApp extends JFrame {
 			pnUppButtons.add(getBtnSeeOrder());
 		}
 		return pnUppButtons;
+	}
+
+	private JPanel getPnInvoice() {
+		if (pnInvoice == null) {
+			pnInvoice = new JPanel();
+			FlowLayout flowLayout = (FlowLayout) pnInvoice.getLayout();
+			flowLayout.setAlignment(FlowLayout.LEFT);
+			pnInvoice.setBackground(Color.WHITE);
+			pnInvoice.add(getChckbxSaveBill());
+		}
+		return pnInvoice;
+	}
+
+	private JCheckBox getChckbxSaveBill() {
+		if (chckbxSaveBill == null) {
+			chckbxSaveBill = new JCheckBox("Save bill");
+			chckbxSaveBill.setToolTipText("Select/unselect to save fill.By default it is selected");
+			chckbxSaveBill.setBackground(Color.WHITE);
+			chckbxSaveBill.setMnemonic('S');
+			chckbxSaveBill.setSelected(true);
+			chckbxSaveBill.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		}
+		return chckbxSaveBill;
+	}
+
+	private JPanel getPanel() {
+		if (panel == null) {
+			panel = new JPanel();
+			panel.setLayout(new BorderLayout(0, 0));
+			panel.add(getPnImagePrice());
+			panel.add(getPnButtonsItem(), BorderLayout.SOUTH);
+			panel.add(getTxtNameItem(), BorderLayout.NORTH);
+		}
+		return panel;
+	}
+
+	private JPanel getPnCenterItems() {
+		if (pnCenterItems == null) {
+			pnCenterItems = new JPanel();
+			pnCenterItems.setLayout(new GridLayout(1, 0, 0, 0));
+			pnCenterItems.add(getPnItems());
+			pnCenterItems.add(getPnItem());
+		}
+		return pnCenterItems;
+	}
+
+	private JPanel getPnDateTime() {
+		if (pnDateTime == null) {
+			pnDateTime = new JPanel();
+			pnDateTime.setBackground(Color.WHITE);
+			pnDateTime.add(getPnHour());
+			pnDateTime.add(getPnMinutes());
+		}
+		return pnDateTime;
+	}
+
+	private JPanel getPnDateDay() {
+		if (pnDateDay == null) {
+			pnDateDay = new JPanel();
+			pnDateDay.setBackground(Color.WHITE);
+			pnDateDay.add(getPnDay());
+			pnDateDay.add(getPnMonth());
+			pnDateDay.add(getPnYear());
+		}
+		return pnDateDay;
+	}
+
+	private JLabel getLblChooseDateAnd() {
+		if (lblChooseDateAnd == null) {
+			lblChooseDateAnd = new JLabel("Choose date and time for the party:");
+			lblChooseDateAnd.setVerticalAlignment(SwingConstants.BOTTOM);
+			lblChooseDateAnd.setHorizontalAlignment(SwingConstants.CENTER);
+			lblChooseDateAnd.setBackground(Color.WHITE);
+			lblChooseDateAnd.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		}
+		return lblChooseDateAnd;
+	}
+
+	private JPanel getPnUppData() {
+		if (pnUppData == null) {
+			pnUppData = new JPanel();
+			pnUppData.setLayout(new GridLayout(0, 1, 0, 0));
+			pnUppData.add(getPnNameData());
+			pnUppData.add(getPnSurnameData());
+			pnUppData.add(getPnNIFData());
+			pnUppData.add(getPnTelephoneData());
+		}
+		return pnUppData;
+	}
+
+	private JPanel getPnBottomData() {
+		if (pnBottomData == null) {
+			pnBottomData = new JPanel();
+			pnBottomData.setBackground(Color.WHITE);
+		}
+		return pnBottomData;
 	}
 }

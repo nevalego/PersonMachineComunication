@@ -1,7 +1,6 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +9,7 @@ public class Party {
 
 	private HashMap<Item, Integer> selectedItemsUnits = new HashMap<>();
 	private Customer customer = new Customer();
-	private Date date = new Date();
+	private String date="";
 	private int attendance = 10;
 	private double finalPrice = 0.0;
 	private String comments = "";
@@ -41,26 +40,13 @@ public class Party {
 	}
 
 	/**
-	 * Delete an specified number of units of an item from the party reservation
+	 * Delete an item from the party reservation
 	 * 
 	 * @param Item i
-	 * @param      int units
 	 */
-	public void deleteItem(Item i, int units) {
-		// Number of units of this item that are reserved
-		int total = selectedItemsUnits.get(i);
-//		// Resting reserved and removed
-//		int result = total - units;
-//		// Remove all reserved (or more)
-//		if (result <= 0) {
-//			// Remove item
-//			selectedItemsUnits.remove(i, total);
-//		} else {
-//			// Update the number of units left for that item
-//			selectedItemsUnits.put(i, total - units);
-//		}
+	public void deleteItem(Item i) {
 		
-		selectedItemsUnits.remove(i,total);//TODO Quitar el spUnitsToRemove y todo lo que hace que funcione
+		selectedItemsUnits.remove(i);
 		// Recalculate total
 		calculateFinalPrice();
 
@@ -186,18 +172,18 @@ public class Party {
 	/**
 	 * Sets the date for the party
 	 * 
-	 * @param Date date
+	 * @param String date
 	 */
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
 	/**
 	 * Provides the date for the party
 	 * 
-	 * @return Date date
+	 * @return String date
 	 */
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
@@ -290,8 +276,7 @@ public class Party {
 		sb.append(cus + "\n");
 		sb.append("** NIF: " + customer.getNIF() + "\n");
 
-		sb.append("** PARTY DATE AND TIME: " + date.getDay() + "/" + date.getMonth() + "/" + (1900 + date.getYear())
-				+ " a las " + date.getHours() + ":" + date.getMinutes() + "\n");
+		sb.append("** PARTY DATE AND TIME: " + date+ "\n");
 		sb.append("** NUMBER OF ATTENDANTS: " + attendance + "\n");
 
 		sb.append(
@@ -326,10 +311,10 @@ public class Party {
 	private String itemsBill(List<Item> list) {
 		String items = "";
 		if (!list.isEmpty()) {
-			items+= String.valueOf(list.get(0).getCategory())+":\n";
+			items+= "\n"+String.valueOf(list.get(0).getCategory())+":";
 			for (Item i : list) {
 				int units = getSelectedItemsUnits().get(i);
-				items += "* " + i.getName() + " / " + i.getCode() + " / " + String.valueOf(units) + " / "
+				items += "\n* " + i.getName() + " / " + i.getCode() + " / " + String.valueOf(units) + " / "
 						+ String.valueOf(units * i.getPrice()) + " €";
 			}
 		}

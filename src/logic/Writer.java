@@ -33,10 +33,11 @@ public class Writer {
 
 	public void invoice(Party p) {
 
+		String date = p.getDate().split("a")[0];
+		String[] newdate = date.split("/");
+		
 		BufferedWriter bw = null;
-		String date = String.valueOf(p.getDate().getDay() + p.getDate().getMonth() + p.getDate().getYear()
-				+ p.getDate().getHours() + p.getDate().getMinutes());
-		String fileName = "src/files/"+String.valueOf(p.getCustomer().getTelephone() + date);
+		String fileName = "src/files/"+String.valueOf(p.getCustomer().getTelephone()+newdate[0]+newdate[1]+newdate[2]);
 
 		try {
 			bw = new BufferedWriter(new FileWriter(new File(fileName + ".txt")));
