@@ -238,7 +238,7 @@ public class PartyApp extends JFrame {
 		setBackground(Color.WHITE);
 		organizer = new PartyOrganizer("src/files/party.txt");
 		p = new Party();
-		
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(PartyApp.class.getResource("/img/logo.jpg")));
 		setTitle("Party Organizer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -279,12 +279,12 @@ public class PartyApp extends JFrame {
 
 		hb.enableHelpKey(getRootPane(), "introduction", hs);// F1
 		hb.enableHelpOnButton(mntmContents, "introduction", hs);// On menu Help-Contents
-		hb.enableHelpOnButton(btnRegister, "register", hs);// Button Register
-		hb.enableHelpOnButton(btnSeeOrder, "card", hs);//Button See Order
-		hb.enableHelp(pnItemsAvailable, "allitems", hs);//Items panel
+		hb.enableHelp(pnPrincipal, "introduction", hs);// Items panel
+		hb.enableHelp(pnLogging, "register", hs);// Data panel
+		hb.enableHelp(pnItemsAvailable, "allitems", hs);// Bill panel
+		hb.enableHelp(pnCard, "card", hs);// Data panel
 		hb.enableHelp(pnData, "data", hs);//Data panel
-		hb.enableHelp(pnSummary, "bill", hs);//Bill panel
-		
+		hb.enableHelp(pnSummary, "bill", hs);// Bill panel
 
 	}
 

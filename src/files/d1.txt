@@ -1,0 +1,18 @@
+PARTY BILL
+------------------
+** CUSTOMER: d d
+** NIF: d
+** PARTY DATE AND TIME: 1/1/2019 a las 18:00
+** NUMBER OF ATTENDANTS: 10
+
+PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT
+--------------------------------------------------------------------------
+
+Decoration:
+* Disco / DE001 / 1 / 100.0 €
+
+COMMENTS
+-------------------------
+d
+
+TOTAL BILL 100.0 €
