@@ -6,10 +6,9 @@
 
   <indexitem text="introduction" target="introduction" />
   <indexitem text="enter as a registered client" target="register" />
-  <indexitem text="start the party" target="start" />
-  <indexitem text="add items for the party" target="additem" />
-  <indexitem text="see current order" target="seeorder" />
-  <indexitem text="fill settings data" target="filldata" />
-  <indexitem text="confirm party" target="confirm" />
+  <indexitem text="see all items" target="allitems" />
+  <indexitem text="see shopping cart" target="card" />
+  <indexitem text="fill party data" target="data" />
+  <indexitem text="party bill" target="bill" />
 
 </index>

@@ -10,13 +10,10 @@
 	  <tocitem text="Register">
 	  	<tocitem text="Enter as a registered client" target="register" />
 	  </tocitem>
-  <tocitem text="Start the party" target="start" />
-  <tocitem text="Organize items">
-  	<tocitem text="Add items for the party" target="additem" />
-  </tocitem>
-  <tocitem text="See current order" target="seeorder" />
-  <tocitem text="Fill data" target="filldata" />
-  <tocitem text="Confirm party" target="confirm" />
+  <tocitem text="See all items" target="allitems" />
+  <tocitem text="See shopping cart" target="card" />
+  <tocitem text="Fill party data" target="data" />
+  <tocitem text="Party Bill" target="bill" />
 
 </tocitem>
     

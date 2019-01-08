@@ -1,0 +1,18 @@
+PARTY BILL
+------------------
+** CUSTOMER: oirwebn noirlhe
+** NIF: hinrl
+** PARTY DATE AND TIME: 1/1/2019 a las 18:00
+** NUMBER OF ATTENDANTS: 10
+
+PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT
+--------------------------------------------------------------------------
+
+Drink:
+* Beer / BE001 / 1 / 17.0 €
+
+COMMENTS
+-------------------------
+
+
+TOTAL BILL 17.0 €

@@ -7,10 +7,9 @@
 
 <mapID target="introduction" url="fuentes/intro.html" />
 <mapID target="register" url="fuentes/register.html" />
-<mapID target="start" url="fuentes/start.html" />
-<mapID target="additem" url="fuentes/additem.html" />
-<mapID target="seeorder" url="fuentes/seeorder.html" />
-<mapID target="filldata" url="fuentes/filldata.html" />
-<mapID target="confirm" url="fuentes/confirm.html" />
+<mapID target="allitems" url="fuentes/allitems.html" />
+<mapID target="card" url="fuentes/card.html" />
+<mapID target="data" url="fuentes/data.html" />
+<mapID target="bill" url="fuentes/summary.html" />
 
 </map>

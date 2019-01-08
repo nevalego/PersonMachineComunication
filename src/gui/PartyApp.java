@@ -166,8 +166,6 @@ public class PartyApp extends JFrame {
 	private JButton btnAddItem;
 	private JTextField txtNameItem;
 	private JPanel pnDescrImage;
-
-	private Item selected;
 	private JPanel pnPriceItem;
 	private JLabel lblUnits;
 	private JPanel pnUnitsItem;
@@ -240,7 +238,7 @@ public class PartyApp extends JFrame {
 		setBackground(Color.WHITE);
 		organizer = new PartyOrganizer("src/files/party.txt");
 		p = new Party();
-		selected = null;
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(PartyApp.class.getResource("/img/logo.jpg")));
 		setTitle("Party Organizer");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -281,6 +279,12 @@ public class PartyApp extends JFrame {
 
 		hb.enableHelpKey(getRootPane(), "introduction", hs);// F1
 		hb.enableHelpOnButton(mntmContents, "introduction", hs);// On menu Help-Contents
+		hb.enableHelpOnButton(btnRegister, "register", hs);// Button Register
+		hb.enableHelpOnButton(btnSeeOrder, "card", hs);//Button See Order
+		hb.enableHelp(pnItemsAvailable, "allitems", hs);//Items panel
+		hb.enableHelp(pnData, "data", hs);//Data panel
+		hb.enableHelp(pnSummary, "bill", hs);//Bill panel
+		
 
 	}
 
@@ -427,18 +431,36 @@ public class PartyApp extends JFrame {
 	protected void nextCard() {
 		if (cardNumber == 1)
 			toCard();
-		else {
-			((CardLayout) pnCards.getLayout()).next(pnCards);
+		if (cardNumber == 3) {
+			if (check()) {
+				setValues();
+				toLast();
+			} else {
+				JOptionPane.showMessageDialog(null, "You must fill all data required", "Empty data",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
 
-			cardNumber++;
-			if (cardNumber == 5) {
-				hideButtons();
-			} else
-				showButtons();
-
-			if (cardNumber != 2)
+			if (cardNumber == 3)
+				btnSeeOrder.setEnabled(false);
+			else {
 				btnSeeOrder.setEnabled(true);
+			}
+			// Change to next card
+			((CardLayout) pnCards.getLayout()).next(pnCards);
+			cardNumber++;
+			showButtons();
 		}
+	}
+
+	private void toLast() {
+		showBill();
+		((CardLayout) pnCards.getLayout()).last(pnCards);
+		cardNumber++;
+		showButtons();
+		btnSeeOrder.setEnabled(false);
+		btnRegister.setEnabled(false);
+		System.out.println(p.getBill());
 	}
 
 	protected void previousCard() {
@@ -614,6 +636,18 @@ public class PartyApp extends JFrame {
 			}
 
 		}
+
+	}
+
+	private void clearItemShown() {
+
+		txtNameItem.setText("");
+		textAreaDescriptionItem.setText("");
+		btnAddItem.setVisible(false);
+		txtPrice.setText("");
+		lblUnits.setVisible(false);
+		spUnitsItem.setVisible(false);
+		lblImageItem.setIcon(null);
 
 	}
 
@@ -1077,6 +1111,7 @@ public class PartyApp extends JFrame {
 
 		p.clearOrder();
 		p.getCustomer().logOut();
+		hideButtons();
 
 		lblUserName.setVisible(false);
 		btnRegister.setVisible(true);
@@ -1272,7 +1307,7 @@ public class PartyApp extends JFrame {
 		if (btnConfirm == null) {
 			btnConfirm = new JButton("Confirm");
 			btnConfirm.setToolTipText("Click here to continue the order");
-			btnConfirm.setMnemonic('N');
+			btnConfirm.setMnemonic('M');
 			btnConfirm.setForeground(Color.BLACK);
 			btnConfirm.setBackground(Color.WHITE);
 			btnConfirm.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -1280,24 +1315,16 @@ public class PartyApp extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 
 					if (lastCard()) {
-						if (check()) {
-							organizer.createParty(p);
-							if (chckbxSaveBill.isSelected()) {
-								organizer.createInvoiceFile(p);
-							}
-							restartApp();
-						} else {
-							JOptionPane.showMessageDialog(null, "You must fill data for the party reservation",
-									"Empty fields", JOptionPane.ERROR_MESSAGE);
-						}
-					} else {
-						if (dataCard()) {
-							setValues();
-							showBill();
-						}
-						btnSeeOrder.setEnabled(true);
-						nextCard();
 
+						organizer.createParty(p);
+						if (chckbxSaveBill.isSelected()) {
+							organizer.createInvoiceFile(p);
+						}
+						showBill();
+						restartApp();
+					} else {
+
+						nextCard();
 					}
 
 				}
@@ -1369,11 +1396,11 @@ public class PartyApp extends JFrame {
 	}
 
 	private boolean checkNIFTelephone() {
-		return !(txtNIFData.getText().equals("") || txtTelephoneData.getText().equals(""));
+		return !txtNIFData.getText().equals("") && !txtTelephoneData.getText().equals("");
 	}
 
 	private boolean checkNameSurname() {
-		return !(txtNameData.getText().equals("") || txtSurnameData.getText().equals(""));
+		return !txtNameData.getText().equals("") && !txtSurnameData.getText().equals("");
 	}
 
 	private JPanel getPnBillSummary() {
@@ -1778,8 +1805,12 @@ public class PartyApp extends JFrame {
 			listAllItems.setToolTipText("List of available items ");
 			listAllItems.addListSelectionListener(new ListSelectionListener() {
 				public void valueChanged(ListSelectionEvent arg0) {
+
 					Item selected = listAllItems.getSelectedValue();
-					showItemSelected(selected);
+					if (selected == null) {
+						clearItemShown();
+					} else
+						showItemSelected(selected);
 				}
 			});
 
@@ -1789,25 +1820,27 @@ public class PartyApp extends JFrame {
 
 	protected void showItemSelected(Item selected) {
 
-		txtNameItem.setText(selected.getName());
-		textAreaDescriptionItem.setText(selected.getDescription());
-		spUnitsItem.setValue(1);
-		btnAddItem.setVisible(true);
+		if (modelAllItems.contains(selected)) {
+			txtNameItem.setText(selected.getName());
+			textAreaDescriptionItem.setText(selected.getDescription());
+			spUnitsItem.setValue(1);
+			btnAddItem.setVisible(true);
 
-		if (selected.isGroup()) {
-			txtPrice.setText(String.valueOf(selected.getGroupPrice()) + " €/group");
-			lblUnits.setVisible(false);
-			spUnitsItem.setVisible(false);
-		} else {
-			txtPrice.setText(String.valueOf(selected.getUnitPrice()) + " €/unit");
-			lblUnits.setVisible(true);
-			spUnitsItem.setVisible(true);
+			if (selected.isGroup()) {
+				txtPrice.setText(String.valueOf(selected.getGroupPrice()) + " €/group");
+				lblUnits.setVisible(false);
+				spUnitsItem.setVisible(false);
+			} else {
+				txtPrice.setText(String.valueOf(selected.getUnitPrice()) + " €/unit");
+				lblUnits.setVisible(true);
+				spUnitsItem.setVisible(true);
+			}
+			ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
+			Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
+			lblImageItem.setIcon(new ImageIcon(im));
+
+			((CardLayout) pnCards.getLayout()).show(pnCards, "item selected");
 		}
-		ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
-		Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
-		lblImageItem.setIcon(new ImageIcon(im));
-
-		((CardLayout) pnCards.getLayout()).show(pnCards, "item selected");
 
 	}
 
@@ -2200,7 +2233,7 @@ public class PartyApp extends JFrame {
 		if (!p.getSelectedItems().isEmpty() && p.itemIsInParty(selected)) {
 			pnItemCard.setVisible(true);
 			btnRemove.setVisible(true);
-			
+
 			int max = p.getSelectedItemsUnits().get(selected);
 			tADescriptionOfThe.setText(selected.getDescription());
 			lblItemName.setText(selected.getName());
@@ -2219,7 +2252,7 @@ public class PartyApp extends JFrame {
 			ImageIcon img = new ImageIcon("src/img/" + selected.getCode() + ".jpg");
 			Image im = img.getImage().getScaledInstance(250, 250, Image.SCALE_DEFAULT);
 			lblImageItemCard.setIcon(new ImageIcon(im));
-		}else {
+		} else {
 			pnItemCard.setVisible(false);
 		}
 	}

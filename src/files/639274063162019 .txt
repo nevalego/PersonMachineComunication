@@ -1,0 +1,18 @@
+PARTY BILL
+------------------
+** CUSTOMER: Patricia Fueyo Martinez
+** NIF: 71739264R
+** PARTY DATE AND TIME: 1/6/2019 a las 21:00
+** NUMBER OF ATTENDANTS: 30
+
+PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT
+--------------------------------------------------------------------------
+
+Drink:
+* Beer / BE001 / 1 / 17.0 €
+
+COMMENTS
+-------------------------
+Sara comes later
+
+TOTAL BILL 17.0 €

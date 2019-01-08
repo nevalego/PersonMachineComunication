@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/jogg-0.0.7.jar"/>
 	<classpathentry kind="lib" path="lib/JTattoo-1.6.11.jar"/>
 	<classpathentry kind="lib" path="lib/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="lib/jhsearch.jar"/>
+	<classpathentry kind="lib" path="lib/jhindexer.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

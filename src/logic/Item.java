@@ -69,8 +69,7 @@ public class Item {
 	}
 
 	public void setUnitPrice(double unitPrice) {
-		if( unitPrice != 0)
-			this.unitPrice = unitPrice;
+		this.unitPrice = unitPrice;
 	}
 
 	public double getGroupPrice() {
@@ -78,8 +77,7 @@ public class Item {
 	}
 
 	public void setGroupPrice(double groupPrice) {
-		if( groupPrice != 0)
-			this.groupPrice = groupPrice;
+		this.groupPrice = groupPrice;
 	}
 
 	@Override

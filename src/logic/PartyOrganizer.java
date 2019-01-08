@@ -5,7 +5,7 @@ import java.util.List;
 
 public class PartyOrganizer {
 
-	private List<Customer> registrados = new ArrayList<Customer>();
+	private List<Customer> registered = new ArrayList<Customer>();
 	private List<Item> items;
 	private List<Party> parties = new ArrayList<>();
 
@@ -14,7 +14,7 @@ public class PartyOrganizer {
 
 	public PartyOrganizer(String file) {
 		items = reader.loadFile(file);
-		registrados= reader.loadClients("src/files/clientes.dat");
+		registered= reader.loadClients("src/files/clientes.dat");
 	}
 
 	public List<Item> getItems() {
@@ -27,17 +27,17 @@ public class PartyOrganizer {
 	}
 	public void registerClient(Customer c) {
 			
-			registrados.add(c);
+			registered.add(c);
 			exportRegisterClients();
 			System.out.println(c.toString());
 	}
 
 	public void exportRegisterClients() {
-		writer.export(registrados);
+		writer.export(registered);
 	}
 	
 	public boolean existsUser(String username) {
-		for(Customer r : registrados) {
+		for(Customer r : registered) {
 			if( r.getUsername().equals(username)) {
 				return true;
 			}
@@ -46,7 +46,7 @@ public class PartyOrganizer {
 	}
 	
 	public Customer getCustomerByUsername(String username) {
-		for(Customer c : registrados) {
+		for(Customer c : registered) {
 			if(c.getUsername().equals(username))
 				return c;
 		}

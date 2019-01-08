@@ -1,0 +1,16 @@
+PARTY BILL
+------------------
+** CUSTOMER: Jairo Velez
+** NIF: 71283094E
+** PARTY DATE AND TIME: 3/0/2019 a las 20:28
+** NUMBER OF ATTENDANTS: 10
+PRODUCTS:   NAME / CODE / UNITS  / TOTAL PRODUCT
+-------------------------------------------------------------------------------
+Disco / DE001 / 1 / 100.0
+Sangría / BE003 / 1 / 6.5
+Prawn kebab / CO001 / 1 / 2.0
+Sandwiches / CO004 / 4 / 12.0
+Irish Pub / LO002 / 1 / 400.0
+Disc-jockey / OT001 / 1 / 200.0
+COMMENTS
+-------------------------TOTAL BILL 720.5 €

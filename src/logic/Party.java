@@ -80,75 +80,6 @@ public class Party {
 		return false;
 	}
 
-	/**
-	 * Provides a String text for items in category Drink
-	 * 
-	 * @return String drink items
-	 */
-	private List<Item> getDrinkItems() {
-		List<Item> drinks = new ArrayList<Item>();
-		for (Item i : selectedItemsUnits.keySet()) {
-			if (i.getCategory().equals(ItemCategory.Drink))
-				drinks.add(i);
-		}
-		return drinks;
-	}
-
-	/**
-	 * Provides a String text for items in category Food
-	 * 
-	 * @return String food items
-	 */
-	private List<Item> getFoodItems() {
-		List<Item> food = new ArrayList<Item>();
-		for (Item i : selectedItemsUnits.keySet()) {
-			if (i.getCategory().equals(ItemCategory.Food))
-				food.add(i);
-		}
-		return food;
-	}
-
-	/**
-	 * Provides a String text for items in category Place
-	 * 
-	 * @return String place items
-	 */
-	private List<Item> getPlaceItems() {
-		List<Item> places = new ArrayList<Item>();
-		for (Item i : selectedItemsUnits.keySet()) {
-			if (i.getCategory().equals(ItemCategory.Place))
-				places.add(i);
-		}
-		return places;
-	}
-
-	/**
-	 * Provides a String text for items in category Decoration
-	 * 
-	 * @return String deco items
-	 */
-	private List<Item> getDecoItems() {
-		List<Item> decos = new ArrayList<Item>();
-		for (Item i : selectedItemsUnits.keySet()) {
-			if (i.getCategory().equals(ItemCategory.Decoration))
-				decos.add(i);
-		}
-		return decos;
-	}
-
-	/**
-	 * Provides a String text for items in category Others
-	 * 
-	 * @return String other items
-	 */
-	private List<Item> getOtherItems() {
-		List<Item> other = new ArrayList<Item>();
-		for (Item i : selectedItemsUnits.keySet()) {
-			if (i.getCategory().equals(ItemCategory.Others))
-				other.add(i);
-		}
-		return other;
-	}
 
 	/**
 	 * Sets the number of attendants coming to the party and updates total price
@@ -321,4 +252,73 @@ public class Party {
 		return items;
 	}
 
+	/**
+	 * Provides a String text for items in category Drink
+	 * 
+	 * @return String drink items
+	 */
+	private List<Item> getDrinkItems() {
+		List<Item> drinks = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Drink))
+				drinks.add(i);
+		}
+		return drinks;
+	}
+
+	/**
+	 * Provides a String text for items in category Food
+	 * 
+	 * @return String food items
+	 */
+	private List<Item> getFoodItems() {
+		List<Item> food = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Food))
+				food.add(i);
+		}
+		return food;
+	}
+
+	/**
+	 * Provides a String text for items in category Place
+	 * 
+	 * @return String place items
+	 */
+	private List<Item> getPlaceItems() {
+		List<Item> places = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Place))
+				places.add(i);
+		}
+		return places;
+	}
+
+	/**
+	 * Provides a String text for items in category Decoration
+	 * 
+	 * @return String deco items
+	 */
+	private List<Item> getDecoItems() {
+		List<Item> decos = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Decoration))
+				decos.add(i);
+		}
+		return decos;
+	}
+
+	/**
+	 * Provides a String text for items in category Others
+	 * 
+	 * @return String other items
+	 */
+	private List<Item> getOtherItems() {
+		List<Item> other = new ArrayList<Item>();
+		for (Item i : selectedItemsUnits.keySet()) {
+			if (i.getCategory().equals(ItemCategory.Others))
+				other.add(i);
+		}
+		return other;
+	}
 }
